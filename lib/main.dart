@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:kkugit/core/hive_config.dart';
 
-void main() {
+
+void main() async {
   runApp(const MyApp());
+  await HiveConfig.initialize();
 }
 
 class MyApp extends StatelessWidget {
