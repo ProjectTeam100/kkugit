@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:kkugit/core/hive_config.dart';
-
+import 'package:kkugit/data/service/category_service.dart';
 
 void main() async {
   runApp(const MyApp());
   await HiveConfig.initialize();
+
+  // 기본 카테고리 초기화
+  final CategoryService categoryService = CategoryService();
+  await categoryService.setDefaultCategories();
 }
 
 class MyApp extends StatelessWidget {
