@@ -9,7 +9,7 @@ class GroupRepository {
   Group? getById(int id) => _groupBox.get(id);
 
   void add(Group group) {
-    _groupBox.put(group.id, group);
+    _groupBox.add(group);
   }
 
   void update(Group group) {

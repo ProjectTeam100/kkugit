@@ -9,7 +9,7 @@ class SpendingRepository {
   Spending? getById(int id) => _spendingBox.get(id);
 
   void add(Spending spending) {
-    _spendingBox.put(spending.id, spending);
+    _spendingBox.add(spending);
   }
 
   void update(Spending spending) {

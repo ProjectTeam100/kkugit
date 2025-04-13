@@ -9,7 +9,7 @@ class ChallengeRepository {
   Challenge? getById(int id) => _challengeBox.get(id);
 
   void add(Challenge challenge) {
-    _challengeBox.put(challenge.id, challenge);
+    _challengeBox.add(challenge);
   }
 
   void update(Challenge challenge) {

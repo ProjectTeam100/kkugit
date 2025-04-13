@@ -9,7 +9,7 @@ class BudgetRepository {
   Budget? getById(int id) => _budgetBox.get(id);
 
   void add(Budget budget) {
-    _budgetBox.put(budget.id, budget);
+    _budgetBox.add(budget);
   }
 
   void update(Budget budget) {

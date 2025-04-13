@@ -9,7 +9,7 @@ class PreferenceRepository {
   Preference? getById(int id) => _preferenceBox.get(id);
 
   void add(Preference preference) {
-    _preferenceBox.put(preference.id, preference);
+    _preferenceBox.add(preference);
   }
 
   void update(Preference preference) {

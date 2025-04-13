@@ -9,7 +9,7 @@ class CategoryRepository {
   Category? getById(int id) => _categoryBox.get(id);
 
   void add(Category category) {
-    _categoryBox.put(category.id, category);
+    _categoryBox.add(category);
   }
 
   void update(Category category) {

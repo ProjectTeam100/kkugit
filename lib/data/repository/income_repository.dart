@@ -9,7 +9,7 @@ class IncomeRepository {
   Income? getById(int id) => _incomeBox.get(id);
 
   void add(Income income) {
-    _incomeBox.put(income.id, income);
+    _incomeBox.add(income);
   }
 
   void update(Income income) {
