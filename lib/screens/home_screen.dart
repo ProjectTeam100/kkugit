@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:kkugit/data/service/income_service.dart';
+import 'package:kkugit/data/service/spending_service.dart';
 import 'package:kkugit/screens/add_data.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -11,14 +13,69 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final SpendingService _spendingService = SpendingService();
+  final IncomeService _incomeService = IncomeService();
   CalendarFormat _calendarFormat = CalendarFormat.week;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
 
+  int _monthlyIncomeSum = 0;
+  int _monthlySpendingSum = 0;
+
+  List<Map<String, dynamic>> _transactions = [];
+
+  void _navigateToAddDataScreen() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const AddDataScreen(),
+      ),
+    );
+
+    if (result) {
+      _loadTransactions();
+    }
+  }
+
+  void _loadTransactions() {
+    final spendings = _spendingService.fetchAllSpendings();
+    final incomes = _incomeService.fetchAllIncomes();
+
+    setState(() {
+      _transactions = [
+        ...spendings.map((spending) => {
+              'price': spending.price,
+              'dateTime': spending.dateTime,
+              'client': spending.client,
+              'isIncome': false,
+            }),
+        ...incomes.map((income) => {
+              'price': income.price,
+              'dateTime': income.dateTime,
+              'client': income.client,
+              'isIncome': true,
+            }),
+      ];
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _calculateMonthlySums();
+    _loadTransactions();
+  }
+
+  void _calculateMonthlySums() {
+    final now = DateTime.now();
+    _monthlyIncomeSum = _incomeService.getMonthlyIncomeSum(now);
+    _monthlySpendingSum = _spendingService.getMonthlySpendingSum(now);
+  }
+
   @override
   Widget build(BuildContext context) {
     final currentMonth = DateFormat('M월', 'ko_KR').format(DateTime.now());
-    
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -86,18 +143,41 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Colors.grey[200],
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: const Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '수입 / 지출 / 합계',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    // Text(
+                    //   '수입 / 지출 / 합계',
+                    //   style: TextStyle(
+                    //     fontSize: 20,
+                    //     fontWeight: FontWeight.bold,
+                    //   ),
+                    // ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '수입\n+$_monthlyIncomeSum',
+                          style: const TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                        Text(
+                          '지출\n-$_monthlySpendingSum',
+                          style: const TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                        Text(
+                          '합계\n${_monthlyIncomeSum - _monthlySpendingSum}',
+                          style: const TextStyle(
+                            fontSize: 20,
+                          ),
+                        ),
+                      ],
                     ),
-                    SizedBox(height: 8),
-                    Text(
+                    const SizedBox(height: 8),
+                    const Text(
                       '무슨무슨 챌린지 진행중',
                       style: TextStyle(
                         fontSize: 16,
@@ -161,21 +241,76 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 8),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: _transactions.length,
+                  itemBuilder: (context, index) {
+                    final transaction = _transactions[index];
+                    return TransactionCard(
+                      price: transaction['price'],
+                      dateTime: transaction['dateTime'],
+                      client: transaction['client'],
+                      isIncome: transaction['isIncome'],
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 20),
             ],
           ),
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          //TODO: 수입/지출 추가 페이지로 이동
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const AddDataScreen(),
-            ),
-          );
-        },
+        onPressed: _navigateToAddDataScreen,
         child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+class TransactionCard extends StatelessWidget {
+  final int price;
+  final DateTime dateTime;
+  final String client;
+  final bool isIncome;
+
+  const TransactionCard({
+    Key? key,
+    required this.price,
+    required this.dateTime,
+    required this.client,
+    required this.isIncome,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      margin: const EdgeInsets.only(bottom: 8),
+      decoration: BoxDecoration(
+        color: isIncome ? Colors.green[100] : Colors.red[100],
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            client,
+            style: const TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          Text(
+            '${isIncome ? '+' : '-'}$price 원',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: isIncome ? Colors.green : Colors.red,
+            ),
+          ),
+        ],
       ),
     );
   }

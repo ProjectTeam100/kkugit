@@ -25,6 +25,64 @@ class _AddDataScreenState extends State<AddDataScreen> {
     super.dispose();
   }
 
+  
+  void _saveTransaction() {
+    final int amount = int.tryParse(_amountController.text) ?? 0;
+
+    if (amount <= 0) {
+      // 금액이 0 이하인 경우 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('금액을 입력하세요.'),
+        ),
+      );
+      return;
+    }
+
+    // 수입/지출에 따라 객체 생성 및 저장
+    if (transactionType == 'income') {
+      // 수입 객체 생성 및 저장
+      final income = Income(
+        id: DateTime.now().millisecondsSinceEpoch,
+        dateTime: selectedDate,
+        client: '내역', //임시 값
+        category: 1, //임시 카테고리 id
+        group: 1, //임시 그룹 id
+        price: amount,
+        memo: '메모', //임시 메모
+      );
+
+      _incomeService.addIncome(income); // 수입 저장
+      // 임시 토스트 메시지 표시
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('수입이 저장되었습니다.'),
+        ),
+      );
+      Navigator.pop(context, true); // 화면 닫기
+    } else {
+      // 지출 객체 생성 및 저장
+      final spending = Spending(
+        id: DateTime.now().millisecondsSinceEpoch,
+        dateTime: selectedDate,
+        client: '내역', //임시 값
+        payment: '현금', //임시 값
+        category: 1, //임시 카테고리 id
+        group: 1, //임시 그룹 id
+        price: amount,
+        memo: '메모', //임시 메모
+      );
+      _spendingService.addSpending(spending); // 지출 저장
+      // 임시 토스트 메시지 표시
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('지출이 저장되었습니다.'),
+        ),
+      );
+      Navigator.pop(context, true); // 화면 닫기
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -189,60 +247,4 @@ class _AddDataScreenState extends State<AddDataScreen> {
     )));
   }
 
-  void _saveTransaction() {
-    final int amount = int.tryParse(_amountController.text) ?? 0;
-
-    if (amount <= 0) {
-      // 금액이 0 이하인 경우 처리
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('금액을 입력하세요.'),
-        ),
-      );
-      return;
-    }
-
-    // 수입/지출에 따라 객체 생성 및 저장
-    if (transactionType == 'income') {
-      // 수입 객체 생성 및 저장
-      final income = Income(
-        id: DateTime.now().millisecondsSinceEpoch,
-        dateTime: selectedDate,
-        client: '내역', //임시 값
-        category: 1, //임시 카테고리 id
-        group: 1, //임시 그룹 id
-        price: amount,
-        memo: '메모', //임시 메모
-      );
-
-      _incomeService.addIncome(income); // 수입 저장
-      // 임시 토스트 메시지 표시
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('수입이 저장되었습니다.'),
-        ),
-      );
-      Navigator.pop(context); // 화면 닫기
-    } else {
-      // 지출 객체 생성 및 저장
-      final spending = Spending(
-        id: DateTime.now().millisecondsSinceEpoch,
-        dateTime: selectedDate,
-        client: '내역', //임시 값
-        payment: '현금', //임시 값
-        category: 1, //임시 카테고리 id
-        group: 1, //임시 그룹 id
-        price: amount,
-        memo: '메모', //임시 메모
-      );
-      _spendingService.addSpending(spending); // 지출 저장
-      // 임시 토스트 메시지 표시
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('지출이 저장되었습니다.'),
-        ),
-      );
-      Navigator.pop(context); // 화면 닫기
-    }
-  }
 }

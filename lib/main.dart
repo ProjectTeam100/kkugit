@@ -8,8 +8,8 @@ import 'screens/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ko_KR', null);
-  runApp(const MyApp());
   await HiveConfig.initialize();
+  runApp(const MyApp());
 
   // 기본 카테고리 초기화
   final CategoryService categoryService = CategoryService();
