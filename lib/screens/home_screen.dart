@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:kkugit/components/challenge_status.dart';
 import 'package:table_calendar/table_calendar.dart';
+import '../components/balance_summary.dart';
+import 'add_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final currentMonth = DateFormat('M월', 'ko_KR').format(DateTime.now());
-    
+
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -77,34 +80,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 20),
+
               // 수입/지출/합계 카드
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '수입 / 지출 / 합계',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 8),
-                    Text(
-                      '무슨무슨 챌린지 진행중',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
+              const BalanceSummary(),
+
+              // 챌린지 상태 카드(임시로 true로 설정)
+              const ChallengeStatus(
+                hasChallenge: true,
               ),
+
               const SizedBox(height: 20),
               // 달력 카드
               Container(
@@ -165,7 +149,18 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AddScreen(),
+            ),
+          );
+        },
+        shape: const CircleBorder(),
+        backgroundColor: Color(0xFF5199FF),
+        foregroundColor: Colors.white,
+        elevation: 3,
         child: const Icon(Icons.add),
       ),
     );
