@@ -5,6 +5,9 @@ import 'package:kkugit/data/model/spending.dart';
 import 'package:kkugit/data/service/income_service.dart';
 import 'package:kkugit/data/service/spending_service.dart';
 
+/// 수입/지출 내역 임시 추가 페이지
+/// 나중에 추가 페이지 만들면 그쪽으로 연결하면 됨!
+
 class AddDataScreen extends StatefulWidget {
   const AddDataScreen({super.key});
 

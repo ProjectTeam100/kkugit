@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 
 class BalanceSummary extends StatelessWidget {
-  const BalanceSummary({super.key});
+  final int income; // 수입
+  final int expense; // 지출
+  
+  const BalanceSummary({
+    Key? key,
+    required this.income,
+    required this.expense
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     // 임시 데이터
-    final income = 500000;
-    final expense = 300000;
     final total = income - expense;
 
     // 총액에 따라 표시할 기호 결정
