@@ -3,7 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:kkugit/data/service/income_service.dart';
 import 'package:kkugit/data/service/spending_service.dart';
 import 'package:kkugit/screens/add_data.dart';
+import 'package:kkugit/components/challenge_status.dart';
 import 'package:table_calendar/table_calendar.dart';
+import '../components/balance_summary.dart';
+import 'add_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,7 +35,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
 
-    if (result) {
+    if (result == true) {
       _loadTransactions();
     }
   }
@@ -135,57 +138,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 20),
+
               // 수입/지출/합계 카드
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Text(
-                    //   '수입 / 지출 / 합계',
-                    //   style: TextStyle(
-                    //     fontSize: 20,
-                    //     fontWeight: FontWeight.bold,
-                    //   ),
-                    // ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          '수입\n+$_monthlyIncomeSum',
-                          style: const TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
-                        Text(
-                          '지출\n-$_monthlySpendingSum',
-                          style: const TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
-                        Text(
-                          '합계\n${_monthlyIncomeSum - _monthlySpendingSum}',
-                          style: const TextStyle(
-                            fontSize: 20,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    const Text(
-                      '무슨무슨 챌린지 진행중',
-                      style: TextStyle(
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
+
+              BalanceSummary(
+                income: _monthlyIncomeSum,
+                expense: _monthlySpendingSum
               ),
+
+              // 챌린지 상태 카드(임시로 true로 설정)
+              const ChallengeStatus(
+                hasChallenge: true,
+              ),
+
               const SizedBox(height: 20),
               // 달력 카드
               Container(
@@ -263,6 +228,10 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _navigateToAddDataScreen,
+        shape: const CircleBorder(),
+        backgroundColor: Color(0xFF5199FF),
+        foregroundColor: Colors.white,
+        elevation: 3,
         child: const Icon(Icons.add),
       ),
     );
