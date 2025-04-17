@@ -6,7 +6,7 @@ import 'package:kkugit/screens/add_data.dart';
 import 'package:kkugit/components/challenge_status.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../components/balance_summary.dart';
-import 'add_screen.dart';
+import 'package:kkugit/screens/add_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -227,11 +227,14 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _navigateToAddDataScreen,
-        shape: const CircleBorder(),
-        backgroundColor: Color(0xFF5199FF),
-        foregroundColor: Colors.white,
-        elevation: 3,
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const AddScreen(),
+            ),
+          );
+        },
         child: const Icon(Icons.add),
       ),
     );
