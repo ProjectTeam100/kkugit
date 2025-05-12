@@ -187,7 +187,7 @@ class _AddScreenState extends State<AddScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('날짜',
+                  const Text('금액',
                       style:
                           TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   Expanded(
