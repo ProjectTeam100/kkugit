@@ -1,3 +1,4 @@
+import 'package:hive/hive.dart';
 import 'package:kkugit/data/model/category.dart';
 import 'package:kkugit/data/repository/category_repository.dart';
 
@@ -26,17 +27,24 @@ class CategoryService {
 
   // 기본 카테고리 설정
   Future<void> setDefaultCategories() async {
-    if (_categoryRepository.getAll().isEmpty) {
-      final defaultCategories = [
-        Category(id: 1, name: '카테고리1'),
-        Category(id: 2, name: '카테고리2'), 
-        Category(id: 3, name: '카테고리3'),
-        Category(id: 4, name: '카테고리4'),
-      ];
-      
-      for (var category in defaultCategories) {
-        _categoryRepository.add(category);
-      }
+    final box = await Hive.openBox<Category>('categoryBox');
+    await box.clear();
+
+    if (box.isEmpty) {
+      await box.addAll([
+        Category(id: 1, name: '🍽️ 식비'),
+        Category(id: 2, name: '🚗 교통/차량'),
+        Category(id: 3, name: '🎬 문화생활'),
+        Category(id: 4, name: '🛒 마트/편의점'),
+        Category(id: 5, name: '👗 패션/미용'),
+        Category(id: 6, name: '🧻 생활용품'),
+        Category(id: 7, name: '🏠 주거/통신'),
+        Category(id: 8, name: '🏥 건강'),
+        Category(id: 9, name: '📚 교육'),
+        Category(id: 10, name: '🎁 경조사/회비'),
+        Category(id: 11, name: '👨‍👩‍👧 부모님'),
+        Category(id: 12, name: '📦 기타'),
+      ]);
     }
   }
 }
