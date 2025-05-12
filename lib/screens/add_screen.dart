@@ -519,41 +519,43 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
                       ),
                     ),
                     if (_isCategoryExpanded)
-                      Padding(
+                      Container(
+                        constraints: const BoxConstraints(maxHeight: 240),
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 8),
-                        child: SizedBox(
-                          height: 200,
-                          child: GridView.count(
-                            crossAxisCount: 3,
-                            crossAxisSpacing: 10,
-                            mainAxisSpacing: 10,
-                            physics: const NeverScrollableScrollPhysics(),
-                            children: _categories.map((category) {
-                              return GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _category = category.name;
-                                    _isCategoryExpanded = false;
-                                  });
-                                },
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[300],
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    category.name,
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold),
-                                  ),
+                        child: GridView.count(
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          shrinkWrap: true,
+                          childAspectRatio: 2.2,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: _categories.map((category) {
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _category = category.name;
+                                  _isCategoryExpanded = false;
+                                });
+                              },
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 6, horizontal: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(8),
                                 ),
-                              );
-                            }).toList(),
-                          ),
+                                child: Text(
+                                  category.name,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                            );
+                          }).toList(),
                         ),
                       ),
                   ],

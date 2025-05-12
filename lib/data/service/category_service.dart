@@ -28,7 +28,6 @@ class CategoryService {
   // 기본 카테고리 설정
   Future<void> setDefaultCategories() async {
     final box = await Hive.openBox<Category>('categoryBox');
-    await box.clear();
 
     if (box.isEmpty) {
       await box.addAll([
