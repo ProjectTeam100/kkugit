@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:kkugit/data/model/category.dart';
+import 'package:hive/hive.dart';
+import 'package:kkugit/screens/category_edit_screen.dart';
 
 class AddScreen extends StatefulWidget {
   const AddScreen({super.key});
@@ -30,7 +33,7 @@ class _AddScreenState extends State<AddScreen> {
       );
       return;
     }
-    
+
     if (_amountController.text.isEmpty) {
       // 금액 입력하지 않은 경우
       ScaffoldMessenger.of(context).showSnackBar(
@@ -38,7 +41,15 @@ class _AddScreenState extends State<AddScreen> {
       );
       return;
     }
-    
+
+    final int amount = int.tryParse(_amountController.text) ?? 0;
+    if (amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('0원보다 큰 금액을 입력해주세요')),
+      );
+      return;
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -153,7 +164,8 @@ class _AddScreenState extends State<AddScreen> {
           children: [
             GestureDetector(
               onTap: () => Navigator.pop(context),
-              child: const Text('날짜', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+              child: const Text('날짜',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
             ),
             TextButton(
               onPressed: _showRecurringInstallmentOptions,
@@ -184,32 +196,48 @@ class _AddScreenState extends State<AddScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('날짜', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  const Text('금액',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   Expanded(
                     child: TextField(
-                      controller: _amountController,
-                      focusNode: _amountFocusNode,
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.right,
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: '000원',
-                        hintStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      style: const TextStyle(
-                        fontSize: 24, 
-                        fontWeight: FontWeight.bold,
-                      ),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                    ),
+                        controller: _amountController,
+                        focusNode: _amountFocusNode,
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.right,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: '000원',
+                          hintStyle: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        onChanged: (value) {
+                          if (value.isEmpty) return;
+
+                          final parsed = int.tryParse(value) ?? 0;
+                          final formatted = parsed.toString();
+
+                          if (formatted != value) {
+                            _amountController.value = TextEditingValue(
+                              text: formatted,
+                              selection: TextSelection.collapsed(
+                                  offset: formatted.length),
+                            );
+                          }
+                        }),
                   ),
                 ],
               ),
             ),
           ),
-          
+
           // 수입/지출 버튼
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 20),
@@ -222,10 +250,10 @@ class _AddScreenState extends State<AddScreen> {
               ],
             ),
           ),
-          
+
           // 하단 메뉴 바는 Expanded로 감싸서 아래쪽에 고정되도록 함
           const Spacer(),
-          
+
           // 버튼 바
           Container(
             color: Colors.grey[200],
@@ -246,7 +274,7 @@ class _AddScreenState extends State<AddScreen> {
 
   Widget _buildTypeButton(String text, bool isIncome) {
     final bool isSelected = _isIncome == isIncome && _isIncome != null;
-    
+
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -292,8 +320,8 @@ class DetailInputScreen extends StatefulWidget {
   final DateTime date;
 
   const DetailInputScreen({
-    super.key, 
-    required this.amount, 
+    super.key,
+    required this.amount,
     required this.isIncome,
     required this.date,
   });
@@ -308,10 +336,39 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
   String _group = '';
   String _paymentMethod = '';
   String _memo = '';
+  List<Category> _categories = [];
+  bool _isCategoryExpanded = false;
 
-  void _showInputDialog(String title, String currentValue, Function(String) onSave) {
-    final TextEditingController controller = TextEditingController(text: currentValue);
-    
+  //카테고리 목록 가져오는 메서드
+  @override
+  void initState() {
+    super.initState();
+    _initializeCategories();
+  }
+
+  void _initializeCategories() async {
+    if (!Hive.isBoxOpen('categoryBox')) {
+      await Hive.openBox<Category>('categoryBox');
+    }
+
+    final box = Hive.box<Category>('categoryBox');
+    final categories =
+        box.values.where((cat) => cat.isIncome == widget.isIncome).toList();
+
+    setState(() {
+      _categories = [];
+    });
+    setState(() {
+      _categories = categories;
+    });
+  }
+
+  // 내역, 그룹, 결제수단, 메모 입력 다이얼로그
+  void _showInputDialog(
+      String title, String currentValue, Function(String) onSave) {
+    final TextEditingController controller =
+        TextEditingController(text: currentValue);
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -343,12 +400,12 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
   void _saveData() {
     // 데이터 저장 로직
     // 여기서 실제 저장 로직 구현 필요
-    
+
     // 저장 완료 메시지
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('${widget.isIncome ? '수입' : '지출'} 데이터가 저장되었습니다.')),
     );
-    
+
     // 이전 화면으로 돌아가기
     Navigator.pop(context, true);
   }
@@ -374,15 +431,18 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('날짜', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                  const Text('금액',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   Text(
                     '${widget.amount}원',
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 24, fontWeight: FontWeight.bold),
                   ),
                 ],
               ),
             ),
-            
+
             // 수입/지출 선택 표시
             Container(
               width: double.infinity,
@@ -391,9 +451,11 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 50, vertical: 15),
                     decoration: BoxDecoration(
-                      color: widget.isIncome ? Colors.grey[400] : Colors.grey[200],
+                      color:
+                          widget.isIncome ? Colors.grey[400] : Colors.grey[200],
                       borderRadius: const BorderRadius.only(
                         topLeft: Radius.circular(8),
                         bottomLeft: Radius.circular(8),
@@ -404,14 +466,18 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: widget.isIncome ? Colors.black : Colors.grey[700],
+                        color:
+                            widget.isIncome ? Colors.black : Colors.grey[700],
                       ),
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 50, vertical: 15),
                     decoration: BoxDecoration(
-                      color: !widget.isIncome ? Colors.grey[400] : Colors.grey[200],
+                      color: !widget.isIncome
+                          ? Colors.grey[400]
+                          : Colors.grey[200],
                       borderRadius: const BorderRadius.only(
                         topRight: Radius.circular(8),
                         bottomRight: Radius.circular(8),
@@ -422,64 +488,173 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: !widget.isIncome ? Colors.black : Colors.grey[700],
+                        color:
+                            !widget.isIncome ? Colors.black : Colors.grey[700],
                       ),
                     ),
                   ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 10),
-            
+
             // 내역 버튼
-            _buildItemButton('내역', _description, 
-              () => _showInputDialog('내역', _description, (value) {
-                setState(() {
-                  _description = value;
-                });
-              })
-            ),
-            
+            _buildItemButton(
+                '내역',
+                _description,
+                () => _showInputDialog('내역', _description, (value) {
+                      setState(() {
+                        _description = value;
+                      });
+                    })),
+
             // 카테고리 버튼
-            _buildItemButton('카테고리', _category, 
-              () => _showInputDialog('카테고리', _category, (value) {
-                setState(() {
-                  _category = value;
-                });
-              })
-            ),
-            
+            Container(
+                width: double.infinity,
+                color: Colors.grey[200],
+                margin: const EdgeInsets.only(bottom: 10),
+                child: Column(
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        setState(() {
+                          _isCategoryExpanded = !_isCategoryExpanded;
+                        });
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _category.isEmpty ? '카테고리' : _category,
+                              style: const TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Icon(
+                              _isCategoryExpanded
+                                  ? Icons.expand_less
+                                  : Icons.expand_more,
+                              size: 20,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (_isCategoryExpanded)
+                      Container(
+                        constraints: const BoxConstraints(maxHeight: 240),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: GridView.count(
+                          key: ValueKey(_categories.length),
+                          crossAxisCount: 3,
+                          crossAxisSpacing: 10,
+                          mainAxisSpacing: 10,
+                          shrinkWrap: true,
+                          childAspectRatio: 2.2,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          children: _categories.map((category) {
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _category = category.name;
+                                  _isCategoryExpanded = false;
+                                });
+                              },
+                              child: Container(
+                                alignment: Alignment.center,
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 6, horizontal: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  category.name,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w500),
+                                ),
+                              ),
+                            );
+                          }).toList()
+                            ..add(
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CategoryEditScreen(
+                                        isIncome: widget.isIncome,
+                                      ),
+                                    ),
+                                  ).then((result) {
+                                    if (result == true) {
+                                      _initializeCategories();
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 6, horizontal: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Text(
+                                    '편집',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ),
+                      ),
+                  ],
+                )),
+
             // 그룹 버튼
-            _buildItemButton('그룹', _group, 
-              () => _showInputDialog('그룹', _group, (value) {
-                setState(() {
-                  _group = value;
-                });
-              })
-            ),
-            
+            _buildItemButton(
+                '그룹',
+                _group,
+                () => _showInputDialog('그룹', _group, (value) {
+                      setState(() {
+                        _group = value;
+                      });
+                    })),
+
             // 결제 수단 버튼 (지출인 경우만)
             if (!widget.isIncome)
-              _buildItemButton('결제수단', _paymentMethod, 
-                () => _showInputDialog('결제수단', _paymentMethod, (value) {
-                  setState(() {
-                    _paymentMethod = value;
-                  });
-                })
-              ),
-            
+              _buildItemButton(
+                  '결제수단',
+                  _paymentMethod,
+                  () => _showInputDialog('결제수단', _paymentMethod, (value) {
+                        setState(() {
+                          _paymentMethod = value;
+                        });
+                      })),
+
             // 메모 버튼
-            _buildItemButton('메모', _memo, 
-              () => _showInputDialog('메모', _memo, (value) {
-                setState(() {
-                  _memo = value;
-                });
-              })
-            ),
-            
+            _buildItemButton(
+                '메모',
+                _memo,
+                () => _showInputDialog('메모', _memo, (value) {
+                      setState(() {
+                        _memo = value;
+                      });
+                    })),
+
             const SizedBox(height: 20),
-            
+
             // 저장 버튼
             Container(
               width: double.infinity,
@@ -500,7 +675,7 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
                 ),
               ),
             ),
-            
+
             const SizedBox(height: 30),
           ],
         ),
