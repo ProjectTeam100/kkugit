@@ -29,6 +29,5 @@ class HiveConfig {
     await Hive.openBox<Preference>('preferenceBox');
     await Hive.openBox<Challenge>('challengeBox');
     await Hive.openBox<Income>('incomeBox');
-
   }
 }

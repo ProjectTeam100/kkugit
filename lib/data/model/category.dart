@@ -8,7 +8,7 @@ class Category extends HiveObject {
   final int id;
 
   @HiveField(1)
-  final String name;
+  String name;
 
   @HiveField(2)
   bool isIncome;

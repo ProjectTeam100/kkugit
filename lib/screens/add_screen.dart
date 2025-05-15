@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:kkugit/data/model/category.dart';
 import 'package:hive/hive.dart';
+import 'package:kkugit/screens/category_edit_screen.dart';
 
 class AddScreen extends StatefulWidget {
   const AddScreen({super.key});
@@ -330,9 +331,14 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
     }
 
     final box = Hive.box<Category>('categoryBox');
+    final categories =
+        box.values.where((cat) => cat.isIncome == widget.isIncome).toList();
+
     setState(() {
-      _categories =
-          box.values.where((cat) => cat.isIncome == widget.isIncome).toList();
+      _categories = [];
+    });
+    setState(() {
+      _categories = categories;
     });
   }
 
@@ -523,6 +529,7 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 16, vertical: 8),
                         child: GridView.count(
+                          key: ValueKey(_categories.length),
                           crossAxisCount: 3,
                           crossAxisSpacing: 10,
                           mainAxisSpacing: 10,
@@ -554,7 +561,41 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
                                 ),
                               ),
                             );
-                          }).toList(),
+                          }).toList()
+                            ..add(
+                              GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CategoryEditScreen(
+                                        isIncome: widget.isIncome,
+                                      ),
+                                    ),
+                                  ).then((result) {
+                                    if (result == true) {
+                                      _initializeCategories();
+                                    }
+                                  });
+                                },
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 6, horizontal: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey[300],
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: const Text(
+                                    '편집',
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ),
+                              ),
+                            ),
                         ),
                       ),
                   ],
