@@ -42,6 +42,14 @@ class _AddScreenState extends State<AddScreen> {
       return;
     }
 
+    final int amount = int.tryParse(_amountController.text) ?? 0;
+    if (amount <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('0원보다 큰 금액을 입력해주세요')),
+      );
+      return;
+    }
+
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -193,24 +201,37 @@ class _AddScreenState extends State<AddScreen> {
                           TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   Expanded(
                     child: TextField(
-                      controller: _amountController,
-                      focusNode: _amountFocusNode,
-                      keyboardType: TextInputType.number,
-                      textAlign: TextAlign.right,
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        hintText: '000원',
-                        hintStyle: TextStyle(
-                            fontSize: 24, fontWeight: FontWeight.bold),
-                      ),
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      inputFormatters: [
-                        FilteringTextInputFormatter.digitsOnly,
-                      ],
-                    ),
+                        controller: _amountController,
+                        focusNode: _amountFocusNode,
+                        keyboardType: TextInputType.number,
+                        textAlign: TextAlign.right,
+                        decoration: const InputDecoration(
+                          border: InputBorder.none,
+                          hintText: '000원',
+                          hintStyle: TextStyle(
+                              fontSize: 24, fontWeight: FontWeight.bold),
+                        ),
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        onChanged: (value) {
+                          if (value.isEmpty) return;
+
+                          final parsed = int.tryParse(value) ?? 0;
+                          final formatted = parsed.toString();
+
+                          if (formatted != value) {
+                            _amountController.value = TextEditingValue(
+                              text: formatted,
+                              selection: TextSelection.collapsed(
+                                  offset: formatted.length),
+                            );
+                          }
+                        }),
                   ),
                 ],
               ),
@@ -410,7 +431,7 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('날짜',
+                  const Text('금액',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   Text(
