@@ -331,9 +331,8 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
 
     final box = Hive.box<Category>('categoryBox');
     setState(() {
-      setState(() {
-        _categories = box.values.toList();
-      });
+      _categories =
+          box.values.where((cat) => cat.isIncome == widget.isIncome).toList();
     });
   }
 

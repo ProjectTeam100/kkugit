@@ -10,8 +10,12 @@ class Category extends HiveObject {
   @HiveField(1)
   final String name;
 
+  @HiveField(2)
+  bool isIncome;
+
   Category({
     required this.id,
     required this.name,
+    required this.isIncome,
   });
 }
