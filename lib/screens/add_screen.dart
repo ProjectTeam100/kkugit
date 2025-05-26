@@ -596,6 +596,9 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
                                   ).then((result) {
                                     if (result == true) {
                                       _initializeCategories();
+                                      setState(() {
+                                        _isCategoryExpanded = true;
+                                      });
                                     }
                                   });
                                 },
