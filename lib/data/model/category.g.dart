@@ -19,7 +19,7 @@ class CategoryAdapter extends TypeAdapter<Category> {
     return Category(
       id: fields[0] as int,
       name: fields[1] as String,
-      isIncome: fields[2] as bool,
+      isIncome: fields[2] as bool?,
     );
   }
 

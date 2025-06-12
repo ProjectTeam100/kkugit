@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:hive/hive.dart';
 import 'package:kkugit/data/model/category.dart';
+import 'package:kkugit/data/service/category_service.dart';
 
 class CategoryEditScreen extends StatefulWidget {
   final bool isIncome;
@@ -12,6 +13,7 @@ class CategoryEditScreen extends StatefulWidget {
 }
 
 class _CategoryEditScreenState extends State<CategoryEditScreen> {
+  final CategoryService _categoryService = CategoryService();
   List<Category> _categories = [];
 
   @override
@@ -21,15 +23,11 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
   }
 
   Future<void> _loadCategories() async {
-    final box = await Hive.openBox<Category>('categoryBox');
-    setState(() {
-      _categories =
-          box.values.where((c) => c.isIncome == widget.isIncome).toList();
-    });
+    _categories = _categoryService.fetchAllCategories();
   }
 
   void _deleteCategory(int index) async {
-    await _categories[index].delete();
+    _categoryService.deleteCategory(_categories[index].id);
     _loadCategories();
   }
 
@@ -49,8 +47,12 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
               onPressed: () => Navigator.pop(context), child: const Text('취소')),
           TextButton(
             onPressed: () async {
-              category.name = controller.text;
-              await category.save();
+              Category newCategory = Category(
+                id: category.id,
+                name: controller.text,
+                isIncome: category.isIncome,
+              );
+              _categoryService.updateCategory(newCategory);
               if (!mounted) return;
               Navigator.pop(context, true);
               _loadCategories();
@@ -80,13 +82,12 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
             onPressed: () async {
               final name = controller.text.trim();
               if (name.isNotEmpty) {
-                final box = Hive.box<Category>('categoryBox');
                 final newCategory = Category(
                   id: DateTime.now().millisecondsSinceEpoch,
                   name: name,
                   isIncome: widget.isIncome,
                 );
-                await box.add(newCategory);
+                _categoryService.addCategory(newCategory);
                 await _loadCategories();
                 if (!mounted) return;
                 Navigator.pop(context, true);

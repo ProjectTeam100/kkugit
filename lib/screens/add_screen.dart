@@ -3,7 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:kkugit/data/model/category.dart';
 import 'package:hive/hive.dart';
+import 'package:kkugit/data/model/income.dart';
+import 'package:kkugit/data/model/spending.dart';
 import 'package:kkugit/screens/category_edit_screen.dart';
+import 'package:kkugit/data/service/income_service.dart';
+import 'package:kkugit/data/service/spending_service.dart';
 
 class AddScreen extends StatefulWidget {
   const AddScreen({super.key});
@@ -13,10 +17,13 @@ class AddScreen extends StatefulWidget {
 }
 
 class _AddScreenState extends State<AddScreen> {
+  final SpendingService _spendingService = SpendingService();
+  final IncomeService _incomeService = IncomeService();
   final TextEditingController _amountController = TextEditingController();
   bool? _isIncome; // null은 선택되지 않은 상태
-  DateTime _selectedDate = DateTime.now();
+  final DateTime _selectedDate = DateTime.now();
   final FocusNode _amountFocusNode = FocusNode();
+  String transactionType = 'expense'; // 'income' or 'expense'
 
   @override
   void dispose() {
@@ -152,6 +159,65 @@ class _AddScreenState extends State<AddScreen> {
         ],
       ),
     );
+  }
+
+  void _saveData() {
+    // 수입/지출 내역 저장
+    final int amount = int.tryParse(_amountController.text) ?? 0;
+
+    if (amount <= 0) {
+      // 금액이 0 이하인 경우 처리
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('금액을 입력하세요.'),
+        ),
+      );
+      return;
+    }
+
+    // 수입/지출에 따라 객체 생성 및 저장
+    if (transactionType == 'income') {
+      // 수입 객체 생성 및 저장
+      final income = Income(
+        id: DateTime.now().millisecondsSinceEpoch,
+        dateTime: _selectedDate,
+        client: '내역', //임시 값
+        category: 1, //임시 카테고리 id
+        group: 1, //임시 그룹 id
+        price: amount,
+        memo: '메모', //임시 메모
+      );
+
+      _incomeService.addIncome(income); // 수입 저장
+    } else {
+      // 지출 객체 생성 및 저장
+      final spending = Spending(
+        id: DateTime.now().millisecondsSinceEpoch,
+        dateTime: _selectedDate,
+        client: '내역', //임시 값
+        payment: '현금', //임시 값
+        category: 1, //임시 카테고리 id
+        group: 1, //임시 그룹 id
+        price: amount,
+        memo: '메모', //임시 메모
+      );
+      _spendingService.addSpending(spending); // 지출 저장
+    }
+    // 저장 완료 메시지
+    if (_isIncome == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('수입 또는 지출을 선택해주세요')),
+      );
+      return;
+    } else {
+      final String typeText = _isIncome! ? '수입' : '지출';
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('$typeText 데이터가 저장되었습니다.')),
+    );
+    }
+
+    // 이전 화면으로 돌아가기
+    Navigator.pop(context, true);
   }
 
   @override
@@ -376,7 +442,7 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
         content: TextField(
           controller: controller,
           decoration: InputDecoration(
-            hintText: '${title}을(를) 입력하세요',
+            hintText: '$title을(를) 입력하세요',
           ),
           maxLines: title == '메모' ? 5 : 1,
         ),
@@ -395,19 +461,6 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
         ],
       ),
     );
-  }
-
-  void _saveData() {
-    // 데이터 저장 로직
-    // 여기서 실제 저장 로직 구현 필요
-
-    // 저장 완료 메시지
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${widget.isIncome ? '수입' : '지출'} 데이터가 저장되었습니다.')),
-    );
-
-    // 이전 화면으로 돌아가기
-    Navigator.pop(context, true);
   }
 
   @override
@@ -660,7 +713,7 @@ class _DetailInputScreenState extends State<DetailInputScreen> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: ElevatedButton(
-                onPressed: _saveData,
+                onPressed: () => {}, // AddScreen과 DetailInputScreen 합친 후에 _saveData 함수 호출
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.grey[400],
                   padding: const EdgeInsets.symmetric(vertical: 15),

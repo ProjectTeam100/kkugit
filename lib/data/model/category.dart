@@ -8,10 +8,10 @@ class Category extends HiveObject {
   final int id;
 
   @HiveField(1)
-  String name;
+  final String name;
 
   @HiveField(2)
-  bool isIncome;
+  final bool? isIncome;
 
   Category({
     required this.id,

@@ -27,10 +27,9 @@ class CategoryService {
 
   // 기본 카테고리 설정
   Future<void> setDefaultCategories() async {
-    final box = await Hive.openBox<Category>('categoryBox');
 
-    if (box.isEmpty) {
-      await box.addAll([
+    if (_categoryRepository.isEmpty) {
+      _categoryRepository.addAll([
         //지출 카테고리
         Category(id: 1, name: '🍽️ 식비', isIncome: false),
         Category(id: 2, name: '🚗 교통/차량', isIncome: false),
