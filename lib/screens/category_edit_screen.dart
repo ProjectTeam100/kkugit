@@ -101,6 +101,7 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // PopScope를 사용해서 뒤로가기 눌렀을 때 결과를 처리
     return PopScope(
       canPop: false,
       onPopInvokedWithResult: (didPop, result) {
