@@ -10,19 +10,19 @@ class TransactionService {
       String client,
       String payment,
       int category,
-      int group,
+      int? group,
       int amount,
       String memo,
       TransactionType type
       ) async {
     final transaction = Transaction(
       dateTime: dateTime,
-      client: client ?? '',
-      payment: payment ?? '',
+      client: client,
+      payment: payment,
       categoryId: category,
       groupId: group,
-      amount: amount ?? 0,
-      memo: memo ?? '',
+      amount: amount,
+      memo: memo,
       type: type
     );
     await _transactionRepository.add(transaction);
