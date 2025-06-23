@@ -382,8 +382,8 @@ class _AddScreenState extends State<AddScreen> {
               // 그룹
               _buildItemButton(
                 '그룹',
-                _group!.name,
-                () => _showInputDialog('그룹', _group!.name, (value) {
+                _group?.name ?? '선택 안함',
+                () => _showInputDialog('그룹', _group?.name ?? '선택 안함', (value) {
                   setState(() {
                     // 그룹 선택 또는 이름변경 로직 추가
                   });
