@@ -102,38 +102,47 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.isIncome ? '수입 카테고리 편집' : '지출 카테고리 편집'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: _addCategory,
-          )
-        ],
-      ),
-      body: ListView.separated(
-        itemCount: _categories.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
-        itemBuilder: (context, index) {
-          final category = _categories[index];
-          return ListTile(
-            title: Text(category.name),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () => _editCategory(category),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () => _deleteCategory(index),
-                ),
-              ],
-            ),
-          );
-        },
+    // PopScope를 사용해서 뒤로가기 눌렀을 때 결과를 처리
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          Navigator.pop(context, true);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.isIncome ? '수입 카테고리 편집' : '지출 카테고리 편집'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.add),
+              onPressed: _addCategory,
+            )
+          ],
+        ),
+        body: ListView.separated(
+          itemCount: _categories.length,
+          separatorBuilder: (_, __) => const Divider(height: 1),
+          itemBuilder: (context, index) {
+            final category = _categories[index];
+            return ListTile(
+              title: Text(category.name),
+              trailing: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.edit),
+                    onPressed: () => _editCategory(category),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.delete),
+                    onPressed: () => _deleteCategory(index),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
       ),
     );
   }
