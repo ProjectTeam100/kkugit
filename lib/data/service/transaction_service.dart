@@ -1,7 +1,9 @@
+import 'package:injectable/injectable.dart';
 import 'package:kkugit/data/model/transaction.dart';
 import 'package:kkugit/data/repository/transaction_repository.dart';
 import 'package:kkugit/di/injection.dart';
 
+@LazySingleton()
 class TransactionService {
   final _transactionRepository = getIt<TransactionRepository>();
 
