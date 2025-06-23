@@ -50,8 +50,8 @@ class _AddScreenState extends State<AddScreen> {
   }
 
   void _fetchCategories() async {
-    _incomeCategories = await _categoryService.getByType(CategoryType.INCOME);
-    _expenseCategories = await _categoryService.getByType(CategoryType.EXPENSE);
+    _incomeCategories = await _categoryService.getByType(CategoryType.income);
+    _expenseCategories = await _categoryService.getByType(CategoryType.expense);
   }
 
 
@@ -142,7 +142,7 @@ class _AddScreenState extends State<AddScreen> {
           _group?.id ?? 0, // 그룹 선택 로직 필요
           amount,
           _memo,
-          _isIncome == true ? TransactionType.INCOME : TransactionType.EXPENSE
+          _isIncome == true ? TransactionType.income : TransactionType.expense
       );
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(

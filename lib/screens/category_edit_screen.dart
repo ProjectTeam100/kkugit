@@ -26,8 +26,8 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
   }
 
   Future<void> _loadCategories() async { // 수입, 지출 카테고리 불러오기
-    _incomeCategories = await _categoryService.getByType(CategoryType.INCOME);
-    _expenseCategories = await _categoryService.getByType(CategoryType.EXPENSE);
+    _incomeCategories = await _categoryService.getByType(CategoryType.income);
+    _expenseCategories = await _categoryService.getByType(CategoryType.expense);
   }
 
   void _deleteCategory(int id) async {
@@ -86,7 +86,7 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
               if (name.isNotEmpty) { // 이름이 중복되는 카테고리 확인 로직 필요
                 _categoryService.add(
                   name,
-                  widget.isIncome ? CategoryType.INCOME : CategoryType.EXPENSE
+                  widget.isIncome ? CategoryType.income : CategoryType.expense
                 );
                 await _loadCategories();
                 if (!mounted) return;

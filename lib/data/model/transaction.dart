@@ -1,6 +1,6 @@
 enum TransactionType {
-  INCOME, // 수입
-  EXPENSE, // 지출
+  income, // 수입
+  expense, // 지출
 }
 
 class Transaction {

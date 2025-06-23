@@ -45,14 +45,14 @@ class CategoryService {
     ];
 
     for (var name in incomeDefault) {
-      final category = Category(name: name, type: CategoryType.EXPENSE);
+      final category = Category(name: name, type: CategoryType.expense);
       if (await _categoryRepository.getByName(name) == null) {
         await _categoryRepository.add(category);
       }
     }
 
     for (var name in expenseDefault) {
-      final category = Category(name: name, type: CategoryType.INCOME);
+      final category = Category(name: name, type: CategoryType.income);
       if (await _categoryRepository.getByName(name) == null) {
         await _categoryRepository.add(category);
       }

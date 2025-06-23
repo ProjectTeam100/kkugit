@@ -32,8 +32,8 @@ class _HomeScreenState extends State<HomeScreen> {
     _transactionService.getAll().then((transactions) {
       setState(() {
         _transactions = transactions;
-        _incomes = transactions.where((t) => t.type == TransactionType.INCOME).toList();
-        _spendings = transactions.where((t) => t.type == TransactionType.EXPENSE).toList();
+        _incomes = transactions.where((t) => t.type == TransactionType.income).toList();
+        _spendings = transactions.where((t) => t.type == TransactionType.expense).toList();
       });
     });
   }
@@ -47,8 +47,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _calculateMonthlySums() async {
     final now = DateTime.now();
-    _monthlyIncomeSum = await _transactionService.getMonthlySumByType(TransactionType.INCOME, now);
-    _monthlySpendingSum = await _transactionService.getMonthlySumByType(TransactionType.EXPENSE, now);
+    _monthlyIncomeSum = await _transactionService.getMonthlySumByType(TransactionType.income, now);
+    _monthlySpendingSum = await _transactionService.getMonthlySumByType(TransactionType.expense, now);
   }
 
   @override
@@ -192,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       price: transaction.amount,
                       dateTime: transaction.dateTime,
                       client: transaction.client,
-                      isIncome: transaction.type == TransactionType.INCOME,
+                      isIncome: transaction.type == TransactionType.income,
                     );
                   },
                 ),

@@ -1,15 +1,15 @@
 enum ChallengeType {
-  NO_SPEND, // 무지출
-  THREE_DAYS, // 3일 챌린지
-  WEEKLY, // 주간 챌린지
-  TWO_WEEKLY, // 2주 챌린지
+  noSpend, // 무지출
+  threeDays, // 3일 챌린지
+  weekly, // 주간 챌린지
+  twoWeeks, // 2주 챌린지
 }
 
 enum ChallengeStatus {
-  NOT_STARTED, // 시작 전
-  ONGOING, // 진행 중
-  SUCCESS, // 성공
-  FAIL, // 실패
+  notStarted, // 시작 전
+  ongoing, // 진행 중
+  success, // 성공
+  fail, // 실패
 }
 
 class Challenge {
