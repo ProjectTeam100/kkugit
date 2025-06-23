@@ -19,8 +19,8 @@ class TransactionService {
       dateTime: dateTime,
       client: client ?? '',
       payment: payment ?? '',
-      category: category,
-      group: group,
+      categoryId: category,
+      groupId: group,
       amount: amount ?? 0,
       memo: memo ?? '',
       type: type
@@ -66,6 +66,10 @@ class TransactionService {
 
   Future<List<Transaction>> getByDateRange(DateTime start, DateTime end) async {
     return await _transactionRepository.getByDateRange(start, end);
+  }
+
+  Future<int> getMonthlySumByType(TransactionType type, DateTime date) async {
+    return await _transactionRepository.getMonthlySumByType(type, date);
   }
 
 }

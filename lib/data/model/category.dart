@@ -13,4 +13,12 @@ class Category {
     required this.name,
     required this.type,
   });
+
+  Category copyWith({required String name}) {
+    return Category(
+      id: this.id,
+      name: name,
+      type: this.type,
+    );
+  }
 }

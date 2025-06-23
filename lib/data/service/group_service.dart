@@ -1,7 +1,9 @@
+import 'package:injectable/injectable.dart';
 import 'package:kkugit/data/model/group.dart';
 import 'package:kkugit/data/repository/group_repository.dart';
 import 'package:kkugit/di/injection.dart';
 
+@LazySingleton()
 class GroupService {
   final _groupRepository = getIt<GroupRepository>();
 

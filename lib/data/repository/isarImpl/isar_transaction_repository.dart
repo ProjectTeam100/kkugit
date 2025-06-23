@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:injectable/injectable.dart';
 import 'package:isar/isar.dart';
 import 'package:kkugit/data/local/isar/isar_transaction.dart';
@@ -41,7 +43,7 @@ class IsarTransactionRepository implements TransactionRepository {
   @override
   Future<List<Transaction>> getByCategoryId(int categoryId) async {
     final entities = await _isar.isarTransactions.filter()
-        .categoryEqualTo(categoryId)
+        .categoryIdEqualTo(categoryId)
         .findAll();
     return entities.map((e) => e.toDomain()).toList();
   }
@@ -49,7 +51,7 @@ class IsarTransactionRepository implements TransactionRepository {
   @override
   Future<List<Transaction>> getByGroupId(int groupId) async {
     final entities = await _isar.isarTransactions.filter()
-        .groupEqualTo(groupId)
+        .groupIdEqualTo(groupId)
         .findAll();
     return entities.map((e) => e.toDomain()).toList();
   }
@@ -84,5 +86,22 @@ class IsarTransactionRepository implements TransactionRepository {
         .dateTimeBetween(start, end)
         .findAll();
     return entities.map((e) => e.toDomain()).toList();
+  }
+
+  @override
+  Future<int> getMonthlySumByType(TransactionType type, DateTime date) async {
+    final start = DateTime(date.year, date.month, 1);
+    final end = DateTime(date.year, date.month + 1, 0);
+
+    final entities = await _isar.isarTransactions.filter()
+        .dateTimeBetween(start, end)
+        .typeEqualTo(type)
+        .findAll();
+
+    int sum = 0;
+    for (final entity in entities) {
+      sum += entity.amount;
+    }
+    return sum;
   }
 }

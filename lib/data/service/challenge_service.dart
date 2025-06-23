@@ -1,7 +1,9 @@
+import 'package:injectable/injectable.dart';
 import 'package:kkugit/data/model/challenge.dart';
 import 'package:kkugit/data/repository/challenge_repository.dart';
 import 'package:kkugit/di/injection.dart';
 
+@LazySingleton()
 class ChallengeService {
   final _challengeRepository = getIt<ChallengeRepository>();
 

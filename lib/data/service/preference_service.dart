@@ -1,8 +1,10 @@
+import 'package:injectable/injectable.dart';
 import 'package:kkugit/data/model/preference.dart';
 import 'package:kkugit/data/model/preferenceData.dart';
 import 'package:kkugit/data/repository/preference_repository.dart';
 import 'package:kkugit/di/injection.dart';
 
+@LazySingleton()
 class PreferenceService {
   final _preferenceRepository = getIt<PreferenceRepository>();
 

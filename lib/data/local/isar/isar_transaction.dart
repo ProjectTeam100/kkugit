@@ -7,10 +7,10 @@ part 'isar_transaction.g.dart';
 class IsarTransaction {
   Id id = Isar.autoIncrement;
   late DateTime dateTime; // 거래 날짜
-late String client; // 거래처
-late String payment; // 결제 수단
-  late int category; // 카테고리 id
-  late int group; // 그룹 id
+  late String client; // 거래처
+  late String payment; // 결제 수단
+  late int categoryId; // 카테고리 id
+  late int? groupId; // 그룹 id
   late int amount; // 거래 금액
   late String memo; // 메모
   @enumerated
@@ -21,8 +21,8 @@ Transaction toDomain() => Transaction(
     dateTime: dateTime,
     client: client,
     payment: payment,
-    category: category,
-    group: group,
+    categoryId: categoryId,
+    groupId: groupId,
     amount: amount,
     memo: memo,
     type: type,
@@ -33,9 +33,9 @@ Transaction toDomain() => Transaction(
       ..id = transaction.id ?? Isar.autoIncrement
       ..dateTime = transaction.dateTime
       ..client = transaction.client
-      ..payment = transaction.payment
-      ..category = transaction.category
-      ..group = transaction.group
+      ..payment = transaction.payment ?? ''
+      ..categoryId = transaction.categoryId
+      ..groupId = transaction.groupId
       ..amount = transaction.amount
       ..memo = transaction.memo
       ..type = transaction.type;

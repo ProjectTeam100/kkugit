@@ -34,6 +34,14 @@ class IsarCategoryRepository implements CategoryRepository {
   }
 
   @override
+  Future<Category?> getByName(String name) async {
+    final entity = await _isar.isarCategorys.filter()
+        .nameEqualTo(name)
+        .findFirst();
+    return entity?.toDomain();
+  }
+
+  @override
   Future<List<Category>> getAll() async {
     final entities = await _isar.isarCategorys.where().findAll();
     return entities.map((e) => e.toDomain()).toList();
