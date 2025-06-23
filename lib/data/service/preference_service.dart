@@ -1,27 +1,33 @@
 import 'package:kkugit/data/model/preference.dart';
+import 'package:kkugit/data/model/preferenceData.dart';
 import 'package:kkugit/data/repository/preference_repository.dart';
+import 'package:kkugit/di/injection.dart';
 
 class PreferenceService {
-  final PreferenceRepository _preferenceRepository = PreferenceRepository();
+  final _preferenceRepository = getIt<PreferenceRepository>();
 
-  List<Preference> fetchAllPreferences() {
-    return _preferenceRepository.getAll();
+  Future<void> add(String name, PreferenceData data) async {
+    final preference = Preference(name: name, data: data);
+    await _preferenceRepository.add(preference);
   }
 
-  Preference? fetchPreferenceById(int id) {
-    return _preferenceRepository.getById(id);
+  Future<void> update(Preference preference) async {
+    await _preferenceRepository.update(preference);
   }
 
-  void addPreference(Preference preference) {
-    _preferenceRepository.add(preference);
+  Future<void> delete(int id) async {
+    await _preferenceRepository.delete(id);
   }
 
-  void updatePreference(Preference preference) {
-    _preferenceRepository.update(preference);
+  Future<Preference?> getById(int id) async {
+    return await _preferenceRepository.getById(id);
   }
 
-  void deletePreference(int id) {
-    _preferenceRepository.delete(id);
+  Future<List<Preference>> getAll() async {
+    return await _preferenceRepository.getAll();
   }
 
+  Future<List<Preference>> getByName(String name) async {
+    return await _preferenceRepository.getByName(name);
+  }
 }

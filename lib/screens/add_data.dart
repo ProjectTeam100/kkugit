@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:kkugit/data/model/income.dart';
-import 'package:kkugit/data/model/spending.dart';
-import 'package:kkugit/data/service/income_service.dart';
+import 'package:kkugit/data/local/hive/spending.dart';
+import 'package:kkugit/data/service/transaction_service.dart';
 import 'package:kkugit/data/service/spending_service.dart';
 
 /// 수입/지출 내역 임시 추가 페이지

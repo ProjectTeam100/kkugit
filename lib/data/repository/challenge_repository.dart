@@ -1,22 +1,11 @@
-import 'package:hive/hive.dart';
 import 'package:kkugit/data/model/challenge.dart';
 
-class ChallengeRepository {
-  final Box<Challenge> _challengeBox = Hive.box<Challenge>('challengeBox');
-
-  List<Challenge> getAll() => _challengeBox.values.toList();
-
-  Challenge? getById(int id) => _challengeBox.get(id);
-
-  void add(Challenge challenge) {
-    _challengeBox.add(challenge);
-  }
-
-  void update(Challenge challenge) {
-    _challengeBox.put(challenge.id, challenge);
-  }
-
-  void delete(int id) {
-    _challengeBox.delete(id);
-  }
+abstract class ChallengeRepository {
+  Future<void> add(Challenge challenge);
+  Future<void> update(Challenge challenge);
+  Future<void> delete(int id);
+  Future<Challenge?> getById(int id);
+  Future<List<Challenge>> getAll();
+  Future<List<Challenge>> getByStatus(ChallengeStatus status);
+  Future<List<Challenge>> getByType(ChallengeType type);
 }

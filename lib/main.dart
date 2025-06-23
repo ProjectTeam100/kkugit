@@ -2,12 +2,20 @@ import 'package:flutter/material.dart';
 import 'package:kkugit/core/hive_config.dart';
 import 'package:kkugit/data/service/category_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:kkugit/data/service/isar/isar_service.dart';
+import 'package:kkugit/di/injection.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ko_KR', null);
+  // DI 설정
+  await configureDependencies();
+  // Hive 데이터베이스 초기화
   await HiveConfig.initialize();
+  // Isar 데이터베이스 초기화
+  await IsarService.getInstance();
+
 
   // 기본 카테고리 초기화
   final CategoryService categoryService = CategoryService();

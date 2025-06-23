@@ -1,29 +1,10 @@
-import 'package:hive/hive.dart';
 import 'package:kkugit/data/model/category.dart';
 
-class CategoryRepository {
-  final Box<Category> _categoryBox = Hive.box<Category>('categoryBox');
-
-  bool get isEmpty => _categoryBox.isEmpty;
-
-  List<Category> getAll() => _categoryBox.values.toList();
-
-  Category? getById(int id) => _categoryBox.get(id);
-
-  void add(Category category) {
-    _categoryBox.add(category);
-  }
-
-  void addAll(List<Category> categories) {
-    _categoryBox.addAll(categories);
-  }
-
-  void update(Category category) {
-    _categoryBox.put(category.id, category);
-  }
-
-  void delete(int id) {
-    _categoryBox.delete(id);
-  }
-
+abstract class CategoryRepository {
+  Future<void> add(Category category);
+  Future<void> update(Category category);
+  Future<void> delete(int id);
+  Future<Category?> getById(int id);
+  Future<List<Category>> getAll();
+  Future<List<Category>> getByType(CategoryType type);
 }

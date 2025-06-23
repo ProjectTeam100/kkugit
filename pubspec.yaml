@@ -21,6 +21,8 @@ version: 1.0.0+1
 environment:
   sdk: '>=3.0.0 <4.0.0'
 
+isar_version: &isar_version 3.1.8 # define the version to be used
+
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
 # consider running `flutter pub upgrade --major-versions`. Alternatively,
@@ -37,13 +39,28 @@ dependencies:
 
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  injectable: ^2.5.0
+  get_it: ^8.0.3
+
+  isar:
+    version: *isar_version
+    hosted: https://pub.isar-community.dev/
+  isar_flutter_libs: # contains Isar Core
+    version: *isar_version
+    hosted: https://pub.isar-community.dev/
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^2.0.0
-  build_runner: ^2.4.7
   hive_generator: ^2.0.1
+
+  isar_generator:
+    version: *isar_version
+    hosted: https://pub.isar-community.dev/
+  build_runner: any
+  injectable_generator:  ^2.5.0
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

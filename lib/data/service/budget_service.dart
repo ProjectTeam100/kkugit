@@ -1,26 +1,41 @@
 import 'package:kkugit/data/model/budget.dart';
+import 'package:kkugit/data/model/group_budget.dart';
 import 'package:kkugit/data/repository/budget_repository.dart';
 
+import '../../di/injection.dart';
+
 class BudgetService {
-  final BudgetRepository _budgetRepository = BudgetRepository();
 
-  List<Budget> fetchAllBudgets() {
-    return _budgetRepository.getAll();
+  final _budgetRepository = getIt<BudgetRepository>();
+
+  Future<void> add(
+      DateTime dateTime,
+      String unit,
+      int amount,
+      ) async {
+    final List<GroupBudget> groupBudgets = [];
+    final budget = Budget(
+      dateTime: dateTime,
+      unit: unit,
+      amount: amount,
+      groupBudgets: groupBudgets,
+    );
+    await _budgetRepository.add(budget);
   }
 
-  Budget? fetchBudgetById(int id) {
-    return _budgetRepository.getById(id);
+  Future<void> update(Budget budget) async {
+    await _budgetRepository.update(budget);
   }
 
-  void addBudget(Budget budget) {
-    _budgetRepository.add(budget);
+  Future<void> delete(int id) async {
+    await _budgetRepository.delete(id);
   }
 
-  void updateBudget(Budget budget) {
-    _budgetRepository.update(budget);
+  Future<Budget?> getById(int id) async {
+    return await _budgetRepository.getById(id);
   }
 
-  void deleteBudget(int id) {
-    _budgetRepository.delete(id);
+  Future<List<Budget>> getAll() async {
+    return await _budgetRepository.getAll();
   }
 }

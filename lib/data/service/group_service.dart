@@ -1,26 +1,33 @@
 import 'package:kkugit/data/model/group.dart';
 import 'package:kkugit/data/repository/group_repository.dart';
+import 'package:kkugit/di/injection.dart';
 
 class GroupService {
-  final GroupRepository _groupRepository = GroupRepository();
+  final _groupRepository = getIt<GroupRepository>();
 
-  List<Group> fetchAllGroups() {
-    return _groupRepository.getAll();
+  Future<void> add(String name, GroupType type) async {
+    final group = Group(name: name, type: type);
+    await _groupRepository.add(group);
   }
 
-  Group? fetchGroupById(int id) {
-    return _groupRepository.getById(id);
+  Future<void> update(Group group) async {
+    await _groupRepository.update(group);
   }
 
-  void addGroup(Group group) {
-    _groupRepository.add(group);
+  Future<void> delete(int id) async {
+    await _groupRepository.delete(id);
   }
 
-  void updateGroup(Group group) {
-    _groupRepository.update(group);
+  Future<Group?> getById(int id) async {
+    return await _groupRepository.getById(id);
   }
 
-  void deleteGroup(int id) {
-    _groupRepository.delete(id);
+  Future<List<Group>> getAll() async {
+    return await _groupRepository.getAll();
   }
+
+  Future<List<Group>> getByType(GroupType type) async {
+    return await _groupRepository.getByType(type);
+  }
+
 }
