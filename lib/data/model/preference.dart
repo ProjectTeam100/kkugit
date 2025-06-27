@@ -1,20 +1,12 @@
-import 'package:hive/hive.dart';
+import 'package:kkugit/data/model/preferenceData.dart';
 
-part 'preference.g.dart';
-
-@HiveType(typeId: 5)
-class Preference extends HiveObject {
-  @HiveField(0)
-  final int id;
-
-  @HiveField(1)
-  final String name; //설정 이름
-
-  @HiveField(2)
-  final Object data; //설정 값
+class Preference {
+  final int? id;
+  final String name; // 설정 이름
+  final PreferenceData data; // 설정 값
 
   Preference({
-    required this.id,
+    this.id,
     required this.name,
     required this.data,
   });

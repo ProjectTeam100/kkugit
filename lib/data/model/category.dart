@@ -1,21 +1,24 @@
-import 'package:hive/hive.dart';
+enum CategoryType {
+  income, // 수입
+  expense, // 지출
+}
 
-part 'category.g.dart';
-
-@HiveType(typeId: 1)
-class Category extends HiveObject {
-  @HiveField(0)
-  final int id;
-
-  @HiveField(1)
+class Category {
+  final int? id;
   String name;
-
-  @HiveField(2)
-  bool isIncome;
+  final CategoryType type;
 
   Category({
-    required this.id,
+    this.id,
     required this.name,
-    required this.isIncome,
+    required this.type,
   });
+
+  Category copyWith({required String name}) {
+    return Category(
+      id: id,
+      name: name,
+      type: type,
+    );
+  }
 }

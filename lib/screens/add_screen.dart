@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:kkugit/data/model/category.dart';
-import 'package:hive/hive.dart';
+import 'package:kkugit/data/model/group.dart';
+import 'package:kkugit/data/model/transaction.dart';
+import 'package:kkugit/data/service/category_service.dart';
+import 'package:kkugit/data/service/transaction_service.dart';
+import 'package:kkugit/di/injection.dart';
 import 'package:kkugit/screens/category_edit_screen.dart';
 
 class AddScreen extends StatefulWidget {
@@ -17,40 +21,25 @@ class _AddScreenState extends State<AddScreen> {
   final FocusNode _amountFocusNode = FocusNode();
   bool? _isIncome; // null: not selected
   DateTime _selectedDate = DateTime.now();
+  final _transactionService = getIt<TransactionService>();
+  final _categoryService = getIt<CategoryService>();
 
   // 통합 입력 항목
-  String _description = '';
-  String _category = '';
-  String _group = '';
-  String _paymentMethod = '';
-  String _memo = '';
-  List<Category> _categories = [];
-  bool _isCategoryExpanded = false;
+  String _description = ''; // 내역
+  Category? _category; // 선택된 카테고리
+  Group? _group; // 선택된 그룹
+  String _paymentMethod = ''; // 결제수단(지출시)
+  String _memo = ''; // 메모
+  List<Category> _incomeCategories = []; // 수입 카테고리
+  List<Category> _expenseCategories = []; // 지출 카테고리
+  List<Category> get _categories =>
+      _isIncome == true ? _incomeCategories : _expenseCategories;
+  bool _isCategoryExpanded = false; // 카테고리 확장 여부
 
   @override
   void initState() {
     super.initState();
-    // 초기 카테고리 목록 불러오기
-    _initializeCategories();
-  }
-
-  Future<void> _initializeCategories() async {
-    // isIncome이 null이면 초기화하지 않음
-    if (_isIncome == null) {
-      setState(() {
-        _categories = [];
-      });
-      return;
-    }
-    if (!Hive.isBoxOpen('categoryBox')) {
-      await Hive.openBox<Category>('categoryBox');
-    }
-    final box = Hive.box<Category>('categoryBox');
-    final categories =
-        box.values.where((cat) => cat.isIncome == _isIncome).toList();
-    setState(() {
-      _categories = categories;
-    });
+    _fetchCategories();
   }
 
   @override
@@ -59,6 +48,12 @@ class _AddScreenState extends State<AddScreen> {
     _amountFocusNode.dispose();
     super.dispose();
   }
+
+  void _fetchCategories() async {
+    _incomeCategories = await _categoryService.getByType(CategoryType.income);
+    _expenseCategories = await _categoryService.getByType(CategoryType.expense);
+  }
+
 
   void _showInputDialog(
     String title,
@@ -74,7 +69,7 @@ class _AddScreenState extends State<AddScreen> {
         content: TextField(
           controller: controller,
           decoration: InputDecoration(
-            hintText: '${title}을(를) 입력하세요',
+            hintText: '$title을(를) 입력하세요',
           ),
           maxLines: title == '메모' ? 5 : 1,
         ),
@@ -95,7 +90,7 @@ class _AddScreenState extends State<AddScreen> {
     );
   }
 
-  void _saveData() {
+  void _saveData() async {
     // 유효성 검사
     if (_isIncome == null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -122,7 +117,7 @@ class _AddScreenState extends State<AddScreen> {
       );
       return;
     }
-    if (_category.trim().isEmpty) {
+    if (_category == null || _category!.name == '' || _category!.id == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('카테고리를 선택해주세요')),
       );
@@ -135,12 +130,31 @@ class _AddScreenState extends State<AddScreen> {
       );
       return;
     }
-    // 실제 저장 로직 필요
-    // ...
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('${_isIncome! ? '수입' : '지출'} 데이터가 저장되었습니다.')),
-    );
-    Navigator.pop(context, true);
+
+    // 거래 데이터 입력
+
+    try {
+      await _transactionService.add(
+          _selectedDate,
+          _description,
+          _isIncome == false ? _paymentMethod : '',
+          _category!.id!,
+          _group?.id ?? 0, // 그룹 선택 로직 필요
+          amount,
+          _memo,
+          _isIncome == true ? TransactionType.income : TransactionType.expense
+      );
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('데이터 저장 실패: $error')),
+      );
+      return;
+    } finally {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${_isIncome! ? '수입' : '지출'} 내역이 저장되었습니다.')),
+      );
+      Navigator.pop(context, true);
+    }
   }
 
   @override
@@ -266,7 +280,7 @@ class _AddScreenState extends State<AddScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              _category.isEmpty ? '카테고리' : _category,
+                              _category == null ? '카테고리' : _category!.name,
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -300,7 +314,7 @@ class _AddScreenState extends State<AddScreen> {
                               return GestureDetector(
                                 onTap: () {
                                   setState(() {
-                                    _category = category.name;
+                                    _category = category;
                                     _isCategoryExpanded = false;
                                   });
                                 },
@@ -334,7 +348,7 @@ class _AddScreenState extends State<AddScreen> {
                                   ),
                                 ).then((result) {
                                   if (result == true) {
-                                    _initializeCategories();
+                                    _fetchCategories();
                                     setState(() {
                                       _isCategoryExpanded = true;
                                     });
@@ -368,10 +382,10 @@ class _AddScreenState extends State<AddScreen> {
               // 그룹
               _buildItemButton(
                 '그룹',
-                _group,
-                () => _showInputDialog('그룹', _group, (value) {
+                _group?.name ?? '선택 안함',
+                () => _showInputDialog('그룹', _group?.name ?? '선택 안함', (value) {
                   setState(() {
-                    _group = value;
+                    // 그룹 선택 또는 이름변경 로직 추가
                   });
                 }),
               ),
@@ -434,10 +448,10 @@ class _AddScreenState extends State<AddScreen> {
       onTap: () {
         setState(() {
           _isIncome = isIncome;
-          _category = '';
+          _category = null; // 카테고리 초기화
           _paymentMethod = '';
         });
-        _initializeCategories();
+        _fetchCategories();
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 20),

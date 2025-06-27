@@ -1,22 +1,10 @@
-import 'package:hive/hive.dart';
 import 'package:kkugit/data/model/preference.dart';
 
-class PreferenceRepository {
-  final Box<Preference> _preferenceBox = Hive.box<Preference>('preferenceBox');
-
-  List<Preference> getAll() => _preferenceBox.values.toList();
-
-  Preference? getById(int id) => _preferenceBox.get(id);
-
-  void add(Preference preference) {
-    _preferenceBox.add(preference);
-  }
-
-  void update(Preference preference) {
-    _preferenceBox.put(preference.id, preference);
-  }
-
-  void delete(int id) {
-    _preferenceBox.delete(id);
-  }
+abstract class PreferenceRepository {
+  Future<void> add(Preference preference);
+  Future<void> update(Preference preference);
+  Future<void> delete(int id);
+  Future<Preference?> getById(int id);
+  Future<List<Preference>> getAll();
+  Future<List<Preference>> getByName(String name);
 }

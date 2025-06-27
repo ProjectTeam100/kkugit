@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
 import 'package:kkugit/data/model/category.dart';
+import 'package:kkugit/data/service/category_service.dart';
+import 'package:kkugit/di/injection.dart';
 
 class CategoryEditScreen extends StatefulWidget {
   final bool isIncome;
@@ -12,7 +13,11 @@ class CategoryEditScreen extends StatefulWidget {
 }
 
 class _CategoryEditScreenState extends State<CategoryEditScreen> {
-  List<Category> _categories = [];
+  final _categoryService = getIt<CategoryService>();
+  List<Category> _incomeCategories = [];
+  List<Category> _expenseCategories = [];
+  List<Category> get _categories =>
+      widget.isIncome ? _incomeCategories : _expenseCategories; // 현재 화면에 맞는 카테고리 리스트
 
   @override
   void initState() {
@@ -20,16 +25,13 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
     _loadCategories();
   }
 
-  Future<void> _loadCategories() async {
-    final box = await Hive.openBox<Category>('categoryBox');
-    setState(() {
-      _categories =
-          box.values.where((c) => c.isIncome == widget.isIncome).toList();
-    });
+  Future<void> _loadCategories() async { // 수입, 지출 카테고리 불러오기
+    _incomeCategories = await _categoryService.getByType(CategoryType.income);
+    _expenseCategories = await _categoryService.getByType(CategoryType.expense);
   }
 
-  void _deleteCategory(int index) async {
-    await _categories[index].delete();
+  void _deleteCategory(int id) async {
+    _categoryService.delete(id);
     _loadCategories();
   }
 
@@ -49,8 +51,10 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
               onPressed: () => Navigator.pop(context), child: const Text('취소')),
           TextButton(
             onPressed: () async {
-              category.name = controller.text;
-              await category.save();
+              Category newCategory = category.copyWith( // 수정된 카테고리 생성
+                name: controller.text.trim(),
+              );
+              _categoryService.update(newCategory);
               if (!mounted) return;
               Navigator.pop(context, true);
               _loadCategories();
@@ -79,14 +83,11 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
           TextButton(
             onPressed: () async {
               final name = controller.text.trim();
-              if (name.isNotEmpty) {
-                final box = Hive.box<Category>('categoryBox');
-                final newCategory = Category(
-                  id: DateTime.now().millisecondsSinceEpoch,
-                  name: name,
-                  isIncome: widget.isIncome,
+              if (name.isNotEmpty) { // 이름이 중복되는 카테고리 확인 로직 필요
+                _categoryService.add(
+                  name,
+                  widget.isIncome ? CategoryType.income : CategoryType.expense
                 );
-                await box.add(newCategory);
                 await _loadCategories();
                 if (!mounted) return;
                 Navigator.pop(context, true);
@@ -135,7 +136,7 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete),
-                    onPressed: () => _deleteCategory(index),
+                    onPressed: () => _deleteCategory(category.id!),
                   ),
                 ],
               ),

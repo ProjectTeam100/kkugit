@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:kkugit/core/hive_config.dart';
 import 'package:kkugit/data/service/category_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:kkugit/di/injection.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ko_KR', null);
-  await HiveConfig.initialize();
+  // DI 설정
+  await configureDependencies();
 
   // 기본 카테고리 초기화
-  final CategoryService categoryService = CategoryService();
-  await categoryService.setDefaultCategories();
-
+  final categoryService = getIt<CategoryService>();
+  if (await categoryService.getAll().then((value) => value.isEmpty)) {
+    await categoryService.setDefaultCategories();
+  }
   runApp(const MyApp());
 }
 
