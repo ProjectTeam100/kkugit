@@ -6,7 +6,7 @@ import 'package:kkugit/data/repository/preference_repository.dart';
 
 @LazySingleton(as: PreferenceRepository)
 class IsarPreferenceRepository implements PreferenceRepository {
-  Isar _isar;
+  final Isar _isar;
   IsarPreferenceRepository(this._isar);
 
   @override

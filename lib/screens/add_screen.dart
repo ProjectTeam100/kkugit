@@ -69,7 +69,7 @@ class _AddScreenState extends State<AddScreen> {
         content: TextField(
           controller: controller,
           decoration: InputDecoration(
-            hintText: '${title}을(를) 입력하세요',
+            hintText: '$title을(를) 입력하세요',
           ),
           maxLines: title == '메모' ? 5 : 1,
         ),

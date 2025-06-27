@@ -8,7 +8,7 @@ import 'package:kkugit/data/repository/transaction_repository.dart';
 
 @LazySingleton(as: TransactionRepository)
 class IsarTransactionRepository implements TransactionRepository {
-  Isar _isar;
+  final Isar _isar;
   IsarTransactionRepository(this._isar);
 
   @override

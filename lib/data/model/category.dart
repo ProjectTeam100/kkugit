@@ -16,9 +16,9 @@ class Category {
 
   Category copyWith({required String name}) {
     return Category(
-      id: this.id,
+      id: id,
       name: name,
-      type: this.type,
+      type: type,
     );
   }
 }

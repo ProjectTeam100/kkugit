@@ -11,11 +11,10 @@ void main() async {
   await configureDependencies();
 
   // 기본 카테고리 초기화
-  final _categoryService = getIt<CategoryService>();
-  if (await _categoryService.getAll().then((value) => value.isEmpty)) {
-    await _categoryService.setDefaultCategories();
+  final categoryService = getIt<CategoryService>();
+  if (await categoryService.getAll().then((value) => value.isEmpty)) {
+    await categoryService.setDefaultCategories();
   }
-
   runApp(const MyApp());
 }
 
