@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:kkugit/data/service/income_service.dart';
-import 'package:kkugit/data/service/spending_service.dart';
-import 'package:kkugit/screens/add_data.dart';
+import 'package:kkugit/data/model/transaction.dart';
+import 'package:kkugit/data/service/transaction_service.dart';
 import 'package:kkugit/components/challenge_status.dart';
+import 'package:kkugit/di/injection.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../components/balance_summary.dart';
 import 'package:kkugit/screens/add_screen.dart';
@@ -18,8 +18,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final SpendingService _spendingService = SpendingService();
-  final IncomeService _incomeService = IncomeService();
+  final _transactionService = getIt<TransactionService>();
   CalendarFormat _calendarFormat = CalendarFormat.week;
   DateTime _focusedDay = DateTime.now();
   DateTime? _selectedDay;
@@ -27,40 +26,17 @@ class _HomeScreenState extends State<HomeScreen> {
   int _monthlyIncomeSum = 0;
   int _monthlySpendingSum = 0;
 
-  List<Map<String, dynamic>> _transactions = [];
-
-  void _navigateToAddDataScreen() async {
-    final result = await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const AddDataScreen(),
-      ),
-    );
-
-    if (result == true) {
-      _loadTransactions();
-    }
-  }
+  List<Transaction> _transactions = [];
+  List<Transaction> _incomes = [];
+  List<Transaction> _spendings = [];
 
   void _loadTransactions() {
-    final spendings = _spendingService.fetchAllSpendings();
-    final incomes = _incomeService.fetchAllIncomes();
-
-    setState(() {
-      _transactions = [
-        ...spendings.map((spending) => {
-              'price': spending.price,
-              'dateTime': spending.dateTime,
-              'client': spending.client,
-              'isIncome': false,
-            }),
-        ...incomes.map((income) => {
-              'price': income.price,
-              'dateTime': income.dateTime,
-              'client': income.client,
-              'isIncome': true,
-            }),
-      ];
+    _transactionService.getAll().then((transactions) {
+      setState(() {
+        _transactions = transactions;
+        _incomes = transactions.where((t) => t.type == TransactionType.income).toList();
+        _spendings = transactions.where((t) => t.type == TransactionType.expense).toList();
+      });
     });
   }
 
@@ -71,10 +47,10 @@ class _HomeScreenState extends State<HomeScreen> {
     _loadTransactions();
   }
 
-  void _calculateMonthlySums() {
+  void _calculateMonthlySums() async {
     final now = DateTime.now();
-    _monthlyIncomeSum = _incomeService.getMonthlyIncomeSum(now);
-    _monthlySpendingSum = _spendingService.getMonthlySpendingSum(now);
+    _monthlyIncomeSum = await _transactionService.getMonthlySumByType(TransactionType.income, now);
+    _monthlySpendingSum = await _transactionService.getMonthlySumByType(TransactionType.expense, now);
   }
 
   @override
@@ -220,10 +196,10 @@ class _HomeScreenState extends State<HomeScreen> {
                   itemBuilder: (context, index) {
                     final transaction = _transactions[index];
                     return TransactionCard(
-                      price: transaction['price'],
-                      dateTime: transaction['dateTime'],
-                      client: transaction['client'],
-                      isIncome: transaction['isIncome'],
+                      price: transaction.amount,
+                      dateTime: transaction.dateTime,
+                      client: transaction.client,
+                      isIncome: transaction.type == TransactionType.income,
                     );
                   },
                 ),

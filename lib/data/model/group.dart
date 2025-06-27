@@ -1,17 +1,16 @@
-import 'package:hive/hive.dart';
+enum GroupType {
+  income,
+  expense,
+}
 
-part 'group.g.dart';
-
-@HiveType(typeId: 2)
-class Group extends HiveObject {
-  @HiveField(0)
-  final int id;
-
-  @HiveField(1)
+class Group {
+  final int? id;
   final String name;
+  final GroupType type;
 
   Group({
-    required this.id,
+    this.id,
     required this.name,
+    required this.type,
   });
 }
