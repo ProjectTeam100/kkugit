@@ -9,8 +9,6 @@ class FixedSpendingScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('고정지출 관리'),
         centerTitle: true,
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
         elevation: 0,
       ),
       body: ListView(

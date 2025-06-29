@@ -26,14 +26,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('설정 페이지')),
+      appBar: AppBar(
+        title: const Text('설정'),
+        centerTitle: true,
+      ),
       body: ListView(
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Center(child: Text('설정 페이지', style: TextStyle(fontSize: 24))),
-          ),
-
           _buildSectionHeader('데이터'),
           _buildListTile('데이터 백업'),
           _buildListTile('데이터 불러오기'),
@@ -53,7 +51,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           ListTile(
             title: const Text('알림 시간'),
-            trailing: Text('${reminderTime.format(context)}'),
+            trailing: Text(reminderTime.format(context)),
             onTap: _pickTime,
           ),
         ],
@@ -66,7 +64,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       width: double.infinity,
       color: Colors.grey[300],
       padding: const EdgeInsets.all(12),
-      child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      child: Text(
+        title,
+        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      ),
     );
   }
 
