@@ -7,6 +7,9 @@ import 'package:kkugit/di/injection.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../components/balance_summary.dart';
 import 'package:kkugit/screens/add_screen.dart';
+import 'package:kkugit/screens/fixed_spending_screen.dart';
+import 'package:kkugit/screens/settings_screen.dart';
+
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -76,7 +79,12 @@ class _HomeScreenState extends State<HomeScreen> {
                     children: [
                       TextButton(
                         onPressed: () {
-                          // TODO: 고정지출 페이지로 이동
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const FixedSpendingScreen(),
+                            ),
+                          );
                         },
                         child: const Text(
                           '고정지출',
@@ -89,7 +97,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       TextButton(
                         onPressed: () {
-                          // TODO: 설정 페이지로 이동
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SettingsScreen(), // 여기로 연결
+                            ),
+                          );
                         },
                         child: const Text(
                           '설정',
