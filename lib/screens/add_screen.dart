@@ -302,6 +302,7 @@ class _AddScreenState extends State<AddScreen> {
                 childAspectRatio: 2.2,
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
+                  // 카테고리 목록
                   ..._categories.map((category) => GestureDetector(
                     onTap: () => setState(() {
                       _category = category;
@@ -314,6 +315,7 @@ class _AddScreenState extends State<AddScreen> {
                       child: Text(category.name, textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
                     ),
                   )),
+                  // 카테고리 추가 버튼
                   GestureDetector(
                     onTap: () {
                       if (_isIncome == null) return;

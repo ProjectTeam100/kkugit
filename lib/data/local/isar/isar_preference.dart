@@ -1,6 +1,6 @@
 import 'package:isar/isar.dart';
 import 'package:kkugit/data/model/preference.dart';
-import 'package:kkugit/data/model/preferenceData.dart';
+import 'package:kkugit/data/model/preference_data.dart';
 
 part 'isar_preference.g.dart';
 

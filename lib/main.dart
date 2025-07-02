@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kkugit/data/service/category_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:kkugit/data/service/preference_service.dart';
 import 'package:kkugit/di/injection.dart';
 import 'screens/home_screen.dart';
 
@@ -14,6 +15,11 @@ void main() async {
   final categoryService = getIt<CategoryService>();
   if (await categoryService.getAll().then((value) => value.isEmpty)) {
     await categoryService.setDefaultCategories();
+  }
+  // 기본 환경설정 초기화
+  final preferenceService = getIt<PreferenceService>();
+  if (await preferenceService.getAll().then((value) => value.isEmpty)) {
+    await preferenceService.setDefaultPreferences();
   }
   runApp(const MyApp());
 }
