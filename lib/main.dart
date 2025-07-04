@@ -8,29 +8,39 @@ import 'screens/home_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('ko_KR', null);
-  // DI 설정
-  await configureDependencies();
-
-  // 기본 카테고리 초기화
-  final categoryService = getIt<CategoryService>();
-  if (await categoryService.getAll().then((value) => value.isEmpty)) {
-    await categoryService.setDefaultCategories();
-  }
-  // 기본 환경설정 초기화
-  final preferenceService = getIt<PreferenceService>();
-  if (await preferenceService.getAll().then((value) => value.isEmpty)) {
-    await preferenceService.setDefaultPreferences();
-  }
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  static final Future<void> _initialization = _initializeApp();
+
+  static Future<void> _initializeApp() async {
+    // DI 설정
+    await configureDependencies();
+
+    // 기본 카테고리/환경설정 초기화
+    final categoryService = getIt<CategoryService>();
+    final preferenceService = getIt<PreferenceService>();
+    await Future.wait([
+      () async {
+        if (await categoryService.getAll().then((value) => value.isEmpty)) {
+          await categoryService.setDefaultCategories();
+        }
+      }(),
+      () async {
+        if (await preferenceService.getAll().then((value) => value.isEmpty)) {
+          await preferenceService.setDefaultPreferences();
+        }
+      }(),
+    ]);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Kkugit',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
@@ -40,7 +50,16 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const HomeScreen(),
+      home: FutureBuilder(
+        future: _initialization,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          return const HomeScreen();
+        },
+      ),
     );
   }
-}
+  }
+
