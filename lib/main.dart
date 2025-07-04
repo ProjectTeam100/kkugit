@@ -7,7 +7,6 @@ import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting('ko_KR', null);
   runApp(const MyApp());
 }
 
@@ -17,23 +16,16 @@ class MyApp extends StatelessWidget {
   static final Future<void> _initialization = _initializeApp();
 
   static Future<void> _initializeApp() async {
+    // 날짜 형식 초기화
+    await initializeDateFormatting('ko_KR', null);
     // DI 설정
     await configureDependencies();
-
-    // 기본 카테고리/환경설정 초기화
-    final categoryService = getIt<CategoryService>();
     final preferenceService = getIt<PreferenceService>();
+    final categoryService = getIt<CategoryService>();
+    // 기본 설정 및 카테고리 추가
     await Future.wait([
-      () async {
-        if (await categoryService.getAll().then((value) => value.isEmpty)) {
-          await categoryService.setDefaultCategories();
-        }
-      }(),
-      () async {
-        if (await preferenceService.getAll().then((value) => value.isEmpty)) {
-          await preferenceService.setDefaultPreferences();
-        }
-      }(),
+      preferenceService.setDefaultPreferences(),
+      categoryService.setDefaultCategories(),
     ]);
   }
 
@@ -61,5 +53,4 @@ class MyApp extends StatelessWidget {
       ),
     );
   }
-  }
-
+}

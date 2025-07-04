@@ -22,6 +22,7 @@ abstract class CardParser { // 기본 추상 클래스
 
   Transaction? handle(String message) {
     final transaction = parse(message);
+
     if (transaction != null) {
       return transaction;
     } else if (next != null) {

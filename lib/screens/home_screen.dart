@@ -223,7 +223,7 @@ class _HomeScreenState extends State<HomeScreen> {
               builder: (context) => const AddScreen(),
             ),
           );
-          if (result) {
+          if (result == true) {
             _initialize(); // 돌아올때 새로고침
           }
         },
