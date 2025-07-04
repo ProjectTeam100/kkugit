@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kkugit/data/constant/preference_name.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -33,11 +34,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         children: [
           _buildSectionHeader('데이터'),
-          _buildListTile('데이터 백업'),
-          _buildListTile('데이터 불러오기'),
+          _buildListTile('데이터 백업', PreferenceName.backupData),
+          _buildListTile('데이터 불러오기', PreferenceName.restoreData),
 
           _buildSectionHeader('보안'),
-          _buildListTile('앱 잠금 설정'),
+          _buildListTile('앱 잠금 설정', PreferenceName.enablePasscode),
 
           _buildSectionHeader('알림'),
           SwitchListTile(
@@ -71,11 +72,23 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildListTile(String title) {
+  Widget _buildListTile(String title, PreferenceName? name) {
     return ListTile(
       title: Text(title),
       onTap: () {
-        // TODO: 원하는 동작 연결
+        switch (name) {
+          case PreferenceName.backupData:
+            //TODO: 데이터 백업 기능 구현
+            break;
+          case PreferenceName.restoreData:
+            //TODO: 데이터 불러오기 기능 구현
+            break;
+          case PreferenceName.enablePasscode:
+            //TODO: 앱 잠금 설정 기능 구현
+            break;
+          default:
+            break;
+        }
       },
     );
   }

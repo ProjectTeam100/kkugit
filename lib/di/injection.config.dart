@@ -35,17 +35,23 @@ import 'package:kkugit/data/service/challenge_service.dart' as _i661;
 import 'package:kkugit/data/service/group_service.dart' as _i51;
 import 'package:kkugit/data/service/preference_service.dart' as _i269;
 import 'package:kkugit/data/service/transaction_service.dart' as _i756;
+import 'package:kkugit/di/isar_module.dart' as _i107;
 
 extension GetItInjectableX on _i174.GetIt {
 // initializes the registration of main-scope dependencies inside of GetIt
-  _i174.GetIt init({
+  Future<_i174.GetIt> init({
     String? environment,
     _i526.EnvironmentFilter? environmentFilter,
-  }) {
+  }) async {
     final gh = _i526.GetItHelper(
       this,
       environment,
       environmentFilter,
+    );
+    final isarModule = _$IsarModule();
+    await gh.factoryAsync<_i338.Isar>(
+      () => isarModule.isar,
+      preResolve: true,
     );
     gh.lazySingleton<_i859.BudgetService>(() => _i859.BudgetService());
     gh.lazySingleton<_i612.CategoryService>(() => _i612.CategoryService());
@@ -69,3 +75,5 @@ extension GetItInjectableX on _i174.GetIt {
     return this;
   }
 }
+
+class _$IsarModule extends _i107.IsarModule {}
