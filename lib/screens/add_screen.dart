@@ -118,7 +118,7 @@ class _AddScreenState extends State<AddScreen> {
     final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
     if (clipboardData?.text != null && clipboardData!.text!.isNotEmpty) {
       final message = clipboardData.text!.trim();
-      final parsed = cardParseChain.handle(message);
+      final parsed = await cardParseChain.handle(message);
       if (parsed != null) {
         setState(() {
           _amountController.text = parsed.amount.toString();
