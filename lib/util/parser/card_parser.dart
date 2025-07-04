@@ -45,20 +45,24 @@ final cardParseChain = SamsungCardParser()
 class AIParser extends CardParser {
   @override
   Future<Transaction?> parse(String message) async {
-    final parsedData = await parseMessage(message);
-    if (parsedData.isEmpty) return null;
-    final year = DateTime.now().year.toString();
-    return Transaction(
-      dateTime:
-          DateTime.parse('$year-${parsedData['date']} ${parsedData['time']}'),
-      client: parsedData['client'] ?? '',
-      payment: parsedData['cardName'] ?? '카드',
-      categoryId: 0, // 카테고리 ID는 추후에 설정
-      groupId: null, // 그룹 ID는 추후에 설정
-      amount: int.tryParse(parsedData['amount']?.toString() ?? '0') ?? 0,
-      memo: '', // 메모는 추후에 설정
-      type: getTransactionType(parsedData['type'] ?? ''),
-    );
+    try {
+      final parsedData = await parseMessage(message);
+      if (parsedData.isEmpty) return null;
+      final year = DateTime.now().year.toString();
+      return Transaction(
+        dateTime:
+            DateTime.parse('$year-${parsedData['date']} ${parsedData['time']}'),
+        client: parsedData['client'] ?? '',
+        payment: parsedData['cardName'] ?? '카드',
+        categoryId: 0, // 카테고리 ID는 추후에 설정
+        groupId: null, // 그룹 ID는 추후에 설정
+        amount: int.tryParse(parsedData['amount']?.toString() ?? '0') ?? 0,
+        memo: '', // 메모는 추후에 설정
+        type: getTransactionType(parsedData['type'] ?? ''),
+      );
+    } catch (e) {
+      return null; // 파싱 실패 시 null 반환
+    }
   }
 }
 
