@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kkugit/data/service/category_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:kkugit/data/service/preference_service.dart';
 import 'package:kkugit/di/injection.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 import 'screens/home_screen.dart';
 
 void main() async {
@@ -20,6 +23,10 @@ class MyApp extends StatelessWidget {
     await initializeDateFormatting('ko_KR', null);
     // DI 설정
     await configureDependencies();
+    //firebase 초기화
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
     final preferenceService = getIt<PreferenceService>();
     final categoryService = getIt<CategoryService>();
     // 기본 설정 및 카테고리 추가
