@@ -104,10 +104,11 @@ class _AddScreenState extends State<AddScreen> {
         _isIncome! ? TransactionType.income : TransactionType.expense,
       );
     } catch (error) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('저장 실패: $error')));
       return;
     }
-
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${_isIncome! ? '수입' : '지출'} 내역이 저장되었습니다.')));
     Navigator.pop(context, true);
   }
