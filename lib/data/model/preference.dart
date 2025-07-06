@@ -1,4 +1,4 @@
-import 'package:kkugit/data/model/preferenceData.dart';
+import 'package:kkugit/data/model/preference_data.dart';
 
 class Preference {
   final int? id;

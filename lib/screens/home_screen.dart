@@ -28,30 +28,28 @@ class _HomeScreenState extends State<HomeScreen> {
   int _monthlySpendingSum = 0;
 
   List<Transaction> _transactions = [];
-  List<Transaction> _incomes = [];
-  List<Transaction> _spendings = [];
-
-  void _loadTransactions() {
-    _transactionService.getAll().then((transactions) {
-      setState(() {
-        _transactions = transactions;
-        _incomes = transactions.where((t) => t.type == TransactionType.income).toList();
-        _spendings = transactions.where((t) => t.type == TransactionType.expense).toList();
-      });
-    });
-  }
+  // List<Transaction> _incomes = [];
+  // List<Transaction> _spendings = [];
 
   @override
   void initState() {
     super.initState();
-    _calculateMonthlySums();
-    _loadTransactions();
+    _initialize();
   }
 
-  void _calculateMonthlySums() async {
+  // 초기화 성능 개선
+  Future<void> _initialize() async {
     final now = DateTime.now();
-    _monthlyIncomeSum = await _transactionService.getMonthlySumByType(TransactionType.income, now);
-    _monthlySpendingSum = await _transactionService.getMonthlySumByType(TransactionType.expense, now);
+    final results = await Future.wait([
+      _transactionService.getMonthlySumByType(TransactionType.income, now),
+      _transactionService.getMonthlySumByType(TransactionType.expense, now),
+      _transactionService.getAll(),
+    ]);
+    setState(() {
+      _monthlyIncomeSum = results[0] as int;
+      _monthlySpendingSum = results[1] as int;
+      _transactions = results[2] as List<Transaction>;
+    });
   }
 
   @override
@@ -198,10 +196,12 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 8),
               Expanded(
                 child: ListView.builder(
+                  key: const PageStorageKey('transactionList'),
                   itemCount: _transactions.length,
                   itemBuilder: (context, index) {
                     final transaction = _transactions[index];
                     return TransactionCard(
+                      key: ValueKey(transaction.id),
                       price: transaction.amount,
                       dateTime: transaction.dateTime,
                       client: transaction.client,
@@ -216,13 +216,16 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => const AddScreen(),
             ),
           );
+          if (result == true) {
+            _initialize(); // 돌아올때 새로고침
+          }
         },
         child: const Icon(Icons.add),
       ),
