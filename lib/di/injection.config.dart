@@ -47,13 +47,13 @@ extension GetItInjectableX on _i174.GetIt {
       environment,
       environmentFilter,
     );
-    gh.lazySingleton<_i51.GroupService>(() => _i51.GroupService());
-    gh.lazySingleton<_i756.TransactionService>(
-        () => _i756.TransactionService());
-    gh.lazySingleton<_i269.PreferenceService>(() => _i269.PreferenceService());
     gh.lazySingleton<_i859.BudgetService>(() => _i859.BudgetService());
     gh.lazySingleton<_i612.CategoryService>(() => _i612.CategoryService());
     gh.lazySingleton<_i661.ChallengeService>(() => _i661.ChallengeService());
+    gh.lazySingleton<_i51.GroupService>(() => _i51.GroupService());
+    gh.lazySingleton<_i269.PreferenceService>(() => _i269.PreferenceService());
+    gh.lazySingleton<_i756.TransactionService>(
+        () => _i756.TransactionService());
     gh.lazySingleton<_i420.TransactionRepository>(
         () => _i642.IsarTransactionRepository(gh<_i338.Isar>()));
     gh.lazySingleton<_i1033.GroupRepository>(
