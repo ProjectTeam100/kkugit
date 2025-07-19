@@ -6,7 +6,10 @@ import 'package:kkugit/data/service/preference_service.dart';
 import 'package:kkugit/di/injection.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'screens/home_screen.dart';
+import 'package:kkugit/layouts/main_layout.dart';
+
+// ✅ main_layout.dart에 있어야 함:
+// final GlobalKey<_MainLayoutState> mainLayoutKey = GlobalKey();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,17 +22,13 @@ class MyApp extends StatelessWidget {
   static final Future<void> _initialization = _initializeApp();
 
   static Future<void> _initializeApp() async {
-    // 날짜 형식 초기화
     await initializeDateFormatting('ko_KR', null);
-    // DI 설정
     await configureDependencies();
-    //firebase 초기화
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
     final preferenceService = getIt<PreferenceService>();
     final categoryService = getIt<CategoryService>();
-    // 기본 설정 및 카테고리 추가
     await Future.wait([
       preferenceService.setDefaultPreferences(),
       categoryService.setDefaultCategories(),
@@ -55,7 +54,7 @@ class MyApp extends StatelessWidget {
           if (snapshot.connectionState != ConnectionState.done) {
             return const Center(child: CircularProgressIndicator());
           }
-          return const HomeScreen();
+          return MainLayout(key: mainLayoutKey); // ✅ key 전달!
         },
       ),
     );
