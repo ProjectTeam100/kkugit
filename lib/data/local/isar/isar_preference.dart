@@ -1,4 +1,5 @@
 import 'package:isar/isar.dart';
+import 'package:kkugit/data/constant/preference_name.dart';
 import 'package:kkugit/data/model/preference.dart';
 import 'package:kkugit/data/model/preference_data.dart';
 
@@ -7,7 +8,8 @@ part 'isar_preference.g.dart';
 @collection
 class IsarPreference {
   Id id = Isar.autoIncrement;
-  late String name; // 설정 이름
+  @enumerated
+  late PreferenceName name; // 설정 이름
 late String data; // 설정 값 (JSON)
   late String type; // 설정 타입 (예: 'string', 'int', 'bool', 'list')
 

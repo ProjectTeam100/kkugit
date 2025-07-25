@@ -9,7 +9,7 @@ import 'package:kkugit/di/injection.dart';
 class PreferenceService {
   final _preferenceRepository = getIt<PreferenceRepository>();
 
-  Future<void> add(String name, PreferenceData data) async {
+  Future<void> add(PreferenceName name, PreferenceData data) async {
     final preference = Preference(name: name, data: data);
     await _preferenceRepository.add(preference);
   }
@@ -22,7 +22,7 @@ class PreferenceService {
     await _preferenceRepository.update(preference);
   }
 
-  Future<void> updateByName(String name, PreferenceData data) async {
+  Future<void> updateByName(PreferenceName name, PreferenceData data) async {
     final existingPreferences = await _preferenceRepository.getByName(name);
     if (existingPreferences.isNotEmpty) {
       final preference = existingPreferences.first;
@@ -49,18 +49,18 @@ class PreferenceService {
     return await _preferenceRepository.getAll();
   }
 
-  Future<List<Preference>> getByName(String name) async {
+  Future<List<Preference>> getByName(PreferenceName name) async {
     return await _preferenceRepository.getByName(name);
   }
 
   Future<void> setDefaultPreferences() async {
     final defaultPreferences = [
-      Preference(name: PreferenceName.backupData.name, data: StringData('')),
-      Preference(name: PreferenceName.restoreData.name, data: StringData('')),
-      Preference(name: PreferenceName.enablePasscode.name, data: BoolData(false)),
-      Preference(name: PreferenceName.passcode.name, data: StringData('')),
-      Preference(name: PreferenceName.enableReminder.name, data: BoolData(false)),
-      Preference(name: PreferenceName.reminderTime.name, data: StringData('08:00')),
+      Preference(name: PreferenceName.backupData, data: StringData('')),
+      Preference(name: PreferenceName.restoreData, data: StringData('')),
+      Preference(name: PreferenceName.enablePasscode, data: BoolData(false)),
+      Preference(name: PreferenceName.passcode, data: StringData('')),
+      Preference(name: PreferenceName.enableReminder, data: BoolData(false)),
+      Preference(name: PreferenceName.reminderTime, data: StringData('08:00')),
     ];
 
     for (var preference in defaultPreferences) {

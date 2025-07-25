@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:kkugit/data/constant/preference_name.dart';
+import 'package:kkugit/data/model/preference_data.dart';
+import 'package:kkugit/data/service/preference_service.dart';
+import 'package:kkugit/di/injection.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -9,6 +12,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  final _preferenceService = getIt<PreferenceService>();
+  final reminderTimeRegex = RegExp(r'(\d{1,2}):(\d{1,2})\s([PAMpam]+)');
   bool isReminderOn = false;
   TimeOfDay reminderTime = const TimeOfDay(hour: 21, minute: 0);
 
@@ -18,10 +23,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
       initialTime: reminderTime,
     );
     if (picked != null) {
+      final timeString =
+          '${picked.hour}:${picked.minute} ${picked.hour >= 12 ? 'PM' : 'AM'}';
+      await _preferenceService.updateByName(
+        PreferenceName.reminderTime,
+        StringData(timeString),
+      );
       setState(() {
         reminderTime = picked;
       });
     }
+  }
+
+  // 앱 시작 시 설정 불러오기
+  Future<void> _loadPreferences() async {
+    final preferences = await _preferenceService.getAll();
+    for (var preference in preferences) {
+      switch (preference.name) {
+        case PreferenceName.enableReminder:
+          isReminderOn = (preference.data as BoolData).value;
+          break;
+        case PreferenceName.reminderTime:
+          final timeString = (preference.data as StringData).value;
+          final match = reminderTimeRegex.firstMatch(timeString);
+          if (match != null) {
+            final hour = int.parse(match.group(1)!);
+            final minute = int.parse(match.group(2)!);
+            final period = match.group(3)?.toUpperCase();
+            if (period == 'PM' && hour < 12) {
+              reminderTime = TimeOfDay(hour: hour + 12, minute: minute);
+            } else if (period == 'AM' && hour == 12) {
+              reminderTime = TimeOfDay(hour: 0, minute: minute);
+            } else {
+              reminderTime = TimeOfDay(hour: hour, minute: minute);
+            }
+          }
+          break;
+        default:
+          break;
+      }
+    }
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPreferences();
   }
 
   @override
@@ -45,6 +93,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             title: const Text('리마인더 설정'),
             value: isReminderOn,
             onChanged: (value) {
+              _preferenceService.updateByName(
+                PreferenceName.enableReminder,
+                BoolData(value),
+              );
               setState(() {
                 isReminderOn = value;
               });

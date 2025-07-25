@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:kkugit/data/service/preference_service.dart';
 import 'package:kkugit/di/injection.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:kkugit/util/notification/notification.dart';
 import 'firebase_options.dart';
 import 'package:kkugit/layouts/main_layout.dart';
 
@@ -12,6 +13,7 @@ import 'package:kkugit/layouts/main_layout.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await FlutterLocalNotifications.initialize();
   runApp(const MyApp());
 }
 
