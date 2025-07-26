@@ -8,6 +8,7 @@ import 'package:kkugit/data/service/category_service.dart';
 import 'package:kkugit/data/service/transaction_service.dart';
 import 'package:kkugit/di/injection.dart';
 import 'package:kkugit/screens/category_edit_screen.dart';
+import 'package:kkugit/util/parser/card_parser.dart';
 
 class AddScreen extends StatefulWidget {
   const AddScreen({super.key});
@@ -104,12 +105,38 @@ class _AddScreenState extends State<AddScreen> {
         _isIncome! ? TransactionType.income : TransactionType.expense,
       );
     } catch (error) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('저장 실패: $error')));
       return;
     }
-
+    if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${_isIncome! ? '수입' : '지출'} 내역이 저장되었습니다.')));
     Navigator.pop(context, true);
+  }
+
+  void _getClipboardData() async {
+    final clipboardData = await Clipboard.getData(Clipboard.kTextPlain);
+    if (clipboardData?.text != null && clipboardData!.text!.isNotEmpty) {
+      final message = clipboardData.text!.trim();
+      final parsed = await cardParseChain.handle(message);
+      if (parsed != null) {
+        setState(() {
+          _amountController.text = parsed.amount.toString();
+          _description = parsed.client;
+          _paymentMethod = parsed.payment;
+          _selectedDate = parsed.dateTime;
+          _isIncome = parsed.type == TransactionType.income;
+        });
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('클립보드 데이터를 불러왔습니다.')));
+      } else {
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('클립보드 데이터 형식이 올바르지 않습니다.')));
+      }
+    } else {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('클립보드에 데이터가 없습니다.')));
+    }
   }
 
   @override
@@ -209,6 +236,22 @@ class _AddScreenState extends State<AddScreen> {
             _buildItemButton('메모', _memo, () => _showInputDialog('메모', _memo, (value) => setState(() => _memo = value))),
 
             const SizedBox(height: 20),
+            // 클립보드 불러오기 버튼
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: ElevatedButton(
+                onPressed: _getClipboardData,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.grey[400],
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                ),
+                child: const Text('클립보드 불러오기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+              ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // 저장 버튼
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: ElevatedButton(
@@ -302,6 +345,7 @@ class _AddScreenState extends State<AddScreen> {
                 childAspectRatio: 2.2,
                 physics: const AlwaysScrollableScrollPhysics(),
                 children: [
+                  // 카테고리 목록
                   ..._categories.map((category) => GestureDetector(
                     onTap: () => setState(() {
                       _category = category;
@@ -314,6 +358,7 @@ class _AddScreenState extends State<AddScreen> {
                       child: Text(category.name, textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
                     ),
                   )),
+                  // 카테고리 추가 버튼
                   GestureDetector(
                     onTap: () {
                       if (_isIncome == null) return;

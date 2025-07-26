@@ -8,8 +8,8 @@ import 'package:table_calendar/table_calendar.dart';
 import '../components/balance_summary.dart';
 import 'package:kkugit/screens/add_screen.dart';
 import 'package:kkugit/screens/fixed_spending_screen.dart';
-import 'package:kkugit/screens/settings_screen.dart';
-
+import 'package:kkugit/layouts/main_layout.dart';
+import 'package:kkugit/components/transaction_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -28,30 +28,25 @@ class _HomeScreenState extends State<HomeScreen> {
   int _monthlySpendingSum = 0;
 
   List<Transaction> _transactions = [];
-  List<Transaction> _incomes = [];
-  List<Transaction> _spendings = [];
-
-  void _loadTransactions() {
-    _transactionService.getAll().then((transactions) {
-      setState(() {
-        _transactions = transactions;
-        _incomes = transactions.where((t) => t.type == TransactionType.income).toList();
-        _spendings = transactions.where((t) => t.type == TransactionType.expense).toList();
-      });
-    });
-  }
 
   @override
   void initState() {
     super.initState();
-    _calculateMonthlySums();
-    _loadTransactions();
+    _initialize();
   }
 
-  void _calculateMonthlySums() async {
+  Future<void> _initialize() async {
     final now = DateTime.now();
-    _monthlyIncomeSum = await _transactionService.getMonthlySumByType(TransactionType.income, now);
-    _monthlySpendingSum = await _transactionService.getMonthlySumByType(TransactionType.expense, now);
+    final results = await Future.wait([
+      _transactionService.getMonthlySumByType(TransactionType.income, now),
+      _transactionService.getMonthlySumByType(TransactionType.expense, now),
+      _transactionService.getAll(),
+    ]);
+    setState(() {
+      _monthlyIncomeSum = results[0] as int;
+      _monthlySpendingSum = results[1] as int;
+      _transactions = results[2] as List<Transaction>;
+    });
   }
 
   @override
@@ -97,12 +92,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       TextButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const SettingsScreen(), // 여기로 연결
-                            ),
-                          );
+                          // ✅ SettingsScreen으로 push하지 않고 MainLayout의 탭 변경
+                          mainLayoutKey.currentState?.navigateToTab(3);
                         },
                         child: const Text(
                           '설정',
@@ -118,7 +109,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
               const SizedBox(height: 20),
-              // 월 표시
               Text(
                 currentMonth,
                 style: const TextStyle(
@@ -127,21 +117,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-
-              // 수입/지출/합계 카드
-
               BalanceSummary(
                 income: _monthlyIncomeSum,
-                expense: _monthlySpendingSum
+                expense: _monthlySpendingSum,
               ),
-
-              // 챌린지 상태 카드(임시로 true로 설정)
-              const ChallengeStatus(
-                hasChallenge: true,
-              ),
-
+              const ChallengeStatus(hasChallenge: true),
               const SizedBox(height: 20),
-              // 달력 카드
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
@@ -155,9 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   lastDay: DateTime.utc(2030, 12, 31),
                   focusedDay: _focusedDay,
                   calendarFormat: _calendarFormat,
-                  selectedDayPredicate: (day) {
-                    return isSameDay(_selectedDay, day);
-                  },
+                  selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                   onDaySelected: (selectedDay, focusedDay) {
                     setState(() {
                       _selectedDay = selectedDay;
@@ -179,7 +158,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              // 수입/지출내역 카드
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
@@ -198,10 +176,12 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 8),
               Expanded(
                 child: ListView.builder(
+                  key: const PageStorageKey('transactionList'),
                   itemCount: _transactions.length,
                   itemBuilder: (context, index) {
                     final transaction = _transactions[index];
                     return TransactionCard(
+                      key: ValueKey(transaction.id),
                       price: transaction.amount,
                       dateTime: transaction.dateTime,
                       client: transaction.client,
@@ -216,62 +196,18 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
+        onPressed: () async {
+          final result = await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => const AddScreen(),
             ),
           );
+          if (result == true) {
+            _initialize(); // 돌아올때 새로고침
+          }
         },
         child: const Icon(Icons.add),
-      ),
-    );
-  }
-}
-
-class TransactionCard extends StatelessWidget {
-  final int price;
-  final DateTime dateTime;
-  final String client;
-  final bool isIncome;
-
-  const TransactionCard({
-    Key? key,
-    required this.price,
-    required this.dateTime,
-    required this.client,
-    required this.isIncome,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: BoxDecoration(
-        color: isIncome ? Colors.green[100] : Colors.red[100],
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            client,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          Text(
-            '${isIncome ? '+' : '-'}$price 원',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: isIncome ? Colors.green : Colors.red,
-            ),
-          ),
-        ],
       ),
     );
   }
