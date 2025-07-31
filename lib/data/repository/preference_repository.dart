@@ -7,5 +7,5 @@ abstract class PreferenceRepository {
   Future<void> delete(int id);
   Future<Preference?> getById(int id);
   Future<List<Preference>> getAll();
-  Future<List<Preference>> getByName(PreferenceName name);
+  Future<Preference?> getByName(PreferenceName name);
 }

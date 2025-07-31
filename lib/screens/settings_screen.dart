@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:kkugit/data/constant/preference_name.dart';
 import 'package:kkugit/data/model/preference_data.dart';
 import 'package:kkugit/data/service/preference_service.dart';
 import 'package:kkugit/di/injection.dart';
+import 'package:kkugit/util/permission/request_android_permissions.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -23,8 +26,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       initialTime: reminderTime,
     );
     if (picked != null) {
-      final timeString =
-          '${picked.hour}:${picked.minute} ${picked.hour >= 12 ? 'PM' : 'AM'}';
+      final now = DateTime.now();
+      final timeString = DateFormat.jm().format(
+          DateTime(now.year, now.month, now.day, picked.hour, picked.minute));
       await _preferenceService.updateByName(
         PreferenceName.reminderTime,
         StringData(timeString),
@@ -33,6 +37,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
         reminderTime = picked;
       });
     }
+  }
+
+  Future<bool> checkPermission() async {
+    final notificationStatus = await Permission.notification.status;
+    final scheduleExactAlarmStatus = await Permission.scheduleExactAlarm.status;
+    bool result = false;
+    if (notificationStatus.isDenied || scheduleExactAlarmStatus.isDenied) {
+      result = await RequestAndroidPermissions.requestPermissions([
+        Permission.notification,
+        Permission.scheduleExactAlarm,
+      ]);
+    } else {
+      result = true;
+    }
+    return result;
   }
 
   // 앱 시작 시 설정 불러오기
@@ -45,18 +64,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           break;
         case PreferenceName.reminderTime:
           final timeString = (preference.data as StringData).value;
-          final match = reminderTimeRegex.firstMatch(timeString);
-          if (match != null) {
-            final hour = int.parse(match.group(1)!);
-            final minute = int.parse(match.group(2)!);
-            final period = match.group(3)?.toUpperCase();
-            if (period == 'PM' && hour < 12) {
-              reminderTime = TimeOfDay(hour: hour + 12, minute: minute);
-            } else if (period == 'AM' && hour == 12) {
-              reminderTime = TimeOfDay(hour: 0, minute: minute);
-            } else {
-              reminderTime = TimeOfDay(hour: hour, minute: minute);
-            }
+          final DateFormat formatter = DateFormat.jm();
+          try {
+            final time = formatter.parse(timeString);
+            reminderTime = TimeOfDay.fromDateTime(time);
+          } catch (e) {
+            // 시간 파싱 실패 시 기본 시간으로 설정
+            reminderTime = const TimeOfDay(hour: 21, minute: 0);
           }
           break;
         default:
@@ -84,15 +98,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSectionHeader('데이터'),
           _buildListTile('데이터 백업', PreferenceName.backupData),
           _buildListTile('데이터 불러오기', PreferenceName.restoreData),
-
           _buildSectionHeader('보안'),
           _buildListTile('앱 잠금 설정', PreferenceName.enablePasscode),
-
           _buildSectionHeader('알림'),
           SwitchListTile(
             title: const Text('리마인더 설정'),
             value: isReminderOn,
             onChanged: (value) {
+              if (value) {
+                checkPermission().then((granted) {
+                  if (!granted) {
+                    isReminderOn = false;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('알림 권한이 필요합니다.'),
+                      ),
+                    );
+                  }
+                });
+              }
               _preferenceService.updateByName(
                 PreferenceName.enableReminder,
                 BoolData(value),
