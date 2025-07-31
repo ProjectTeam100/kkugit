@@ -34,7 +34,17 @@ class _AddScreenState extends State<AddScreen> {
   bool _isCategoryExpanded = false;
   String _repeatOrInstallment = '없음';
 
-  List<Category> get _categories => _isIncome == true ? _incomeCategories : _expenseCategories;
+  // 결제수단 확장/선택 상태
+  bool _isPaymentExpanded = false;
+  final List<String> _paymentOptions = ['현금', '카드', '계좌이체', '기타'];
+
+  // 확장 상태 변수
+  bool _isDescriptionExpanded = false;
+  bool _isGroupExpanded = false;
+  bool _isMemoExpanded = false;
+
+  List<Category> get _categories =>
+      _isIncome == true ? _incomeCategories : _expenseCategories;
 
   @override
   void initState() {
@@ -68,7 +78,8 @@ class _AddScreenState extends State<AddScreen> {
     }
   }
 
-  void _showInputDialog(String title, String currentValue, Function(String) onSave) {
+  void _showInputDialog(
+      String title, String currentValue, Function(String) onSave) {
     final controller = TextEditingController(text: currentValue);
     showDialog(
       context: context,
@@ -80,16 +91,30 @@ class _AddScreenState extends State<AddScreen> {
           maxLines: title == '메모' ? 5 : 1,
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('취소')),
-          TextButton(onPressed: () { onSave(controller.text); Navigator.pop(context); }, child: const Text('저장')),
+          TextButton(
+              onPressed: () => Navigator.pop(context), child: const Text('취소')),
+          TextButton(
+              onPressed: () {
+                onSave(controller.text);
+                Navigator.pop(context);
+              },
+              child: const Text('저장')),
         ],
       ),
     );
   }
 
   void _saveData() async {
-    if (_isIncome == null || _amountController.text.isEmpty || int.tryParse(_amountController.text) == null || int.parse(_amountController.text) <= 0 || _description.trim().isEmpty || _category == null || _category!.id == null || (_isIncome == false && _paymentMethod.trim().isEmpty)) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('입력값을 확인해주세요.')));
+    if (_isIncome == null ||
+        _amountController.text.isEmpty ||
+        int.tryParse(_amountController.text) == null ||
+        int.parse(_amountController.text) <= 0 ||
+        _description.trim().isEmpty ||
+        _category == null ||
+        _category!.id == null ||
+        (_isIncome == false && _paymentMethod.trim().isEmpty)) {
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('입력값을 확인해주세요.')));
       return;
     }
 
@@ -106,11 +131,13 @@ class _AddScreenState extends State<AddScreen> {
       );
     } catch (error) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('저장 실패: $error')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('저장 실패: $error')));
       return;
     }
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${_isIncome! ? '수입' : '지출'} 내역이 저장되었습니다.')));
+    ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${_isIncome! ? '수입' : '지출'} 내역이 저장되었습니다.')));
     Navigator.pop(context, true);
   }
 
@@ -128,14 +155,17 @@ class _AddScreenState extends State<AddScreen> {
           _isIncome = parsed.type == TransactionType.income;
         });
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('클립보드 데이터를 불러왔습니다.')));
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('클립보드 데이터를 불러왔습니다.')));
       } else {
         if (!mounted) return;
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('클립보드 데이터 형식이 올바르지 않습니다.')));
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('클립보드 데이터 형식이 올바르지 않습니다.')));
       }
     } else {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('클립보드에 데이터가 없습니다.')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(const SnackBar(content: Text('클립보드에 데이터가 없습니다.')));
     }
   }
 
@@ -143,7 +173,8 @@ class _AddScreenState extends State<AddScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('내역 추가', style: TextStyle(fontWeight: FontWeight.bold)),
+        title:
+            const Text('내역 추가', style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: true,
         elevation: 0,
         leading: IconButton(
@@ -168,7 +199,8 @@ class _AddScreenState extends State<AddScreen> {
                     onTap: _pickDate,
                     child: Row(
                       children: [
-                        const Text('날짜', style: TextStyle(fontWeight: FontWeight.bold)),
+                        const Text('날짜',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
                         const SizedBox(width: 8),
                         Text(DateFormat('yyyy.MM.dd').format(_selectedDate)),
                       ],
@@ -176,8 +208,12 @@ class _AddScreenState extends State<AddScreen> {
                   ),
                   DropdownButton<String>(
                     value: _repeatOrInstallment,
-                    items: ['없음', '반복', '할부'].map((option) => DropdownMenuItem(value: option, child: Text(option))).toList(),
-                    onChanged: (value) => setState(() => _repeatOrInstallment = value!),
+                    items: ['없음', '반복', '할부']
+                        .map((option) => DropdownMenuItem(
+                            value: option, child: Text(option)))
+                        .toList(),
+                    onChanged: (value) =>
+                        setState(() => _repeatOrInstallment = value!),
                   )
                 ],
               ),
@@ -191,7 +227,9 @@ class _AddScreenState extends State<AddScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Text('금액', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+                  const Text('금액',
+                      style:
+                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
                   Expanded(
                     child: TextField(
                       controller: _amountController,
@@ -201,9 +239,11 @@ class _AddScreenState extends State<AddScreen> {
                       decoration: const InputDecoration(
                         border: InputBorder.none,
                         hintText: '000원',
-                        hintStyle: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                        hintStyle: TextStyle(
+                            fontSize: 24, fontWeight: FontWeight.bold),
                       ),
-                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 24, fontWeight: FontWeight.bold),
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                     ),
                   ),
@@ -223,17 +263,218 @@ class _AddScreenState extends State<AddScreen> {
               ),
             ),
 
-            _buildItemButton('내역', _description, () => _showInputDialog('내역', _description, (value) => setState(() => _description = value))),
+            // 내역 입력 (확장형)
+            Container(
+              width: double.infinity,
+              color: Colors.grey[200],
+              margin: const EdgeInsets.only(bottom: 10),
+              child: Column(
+                children: [
+                  InkWell(
+                    onTap: () => setState(
+                        () => _isDescriptionExpanded = !_isDescriptionExpanded),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _description.isEmpty ? '내역' : _description,
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          Icon(
+                            _isDescriptionExpanded
+                                ? Icons.expand_less
+                                : Icons.expand_more,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (_isDescriptionExpanded)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: TextField(
+                        controller: TextEditingController(text: _description),
+                        onChanged: (value) =>
+                            setState(() => _description = value),
+                        decoration: const InputDecoration(
+                          hintText: '내역 입력',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
 
             // 카테고리 선택
             _buildCategorySelector(),
 
-            _buildItemButton('그룹', _group?.name ?? '선택 안함', () => _showInputDialog('그룹', _group?.name ?? '선택 안함', (value) {})),
+            // 그룹 입력 (확장형)
+            Container(
+              width: double.infinity,
+              color: Colors.grey[200],
+              margin: const EdgeInsets.only(bottom: 10),
+              child: Column(
+                children: [
+                  InkWell(
+                    onTap: () =>
+                        setState(() => _isGroupExpanded = !_isGroupExpanded),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _group?.name.isEmpty ?? true ? '그룹' : _group!.name,
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          Icon(
+                            _isGroupExpanded
+                                ? Icons.expand_less
+                                : Icons.expand_more,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (_isGroupExpanded)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: TextField(
+                        controller:
+                            TextEditingController(text: _group?.name ?? ''),
+                        onChanged: (value) => setState(() => _group =
+                            Group(name: value, type: GroupType.expense)),
+                        decoration: const InputDecoration(
+                          hintText: '그룹 입력',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
 
             if (_isIncome == false)
-              _buildItemButton('결제수단', _paymentMethod, () => _showInputDialog('결제수단', _paymentMethod, (value) => setState(() => _paymentMethod = value))),
+              Container(
+                width: double.infinity,
+                color: Colors.grey[200],
+                margin: const EdgeInsets.only(bottom: 10),
+                child: Column(
+                  children: [
+                    InkWell(
+                      onTap: () => setState(
+                          () => _isPaymentExpanded = !_isPaymentExpanded),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              _paymentMethod.isEmpty ? '결제수단' : _paymentMethod,
+                              style: const TextStyle(
+                                  fontSize: 18, fontWeight: FontWeight.bold),
+                            ),
+                            Icon(
+                              _isPaymentExpanded
+                                  ? Icons.expand_less
+                                  : Icons.expand_more,
+                              size: 20,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    if (_isPaymentExpanded)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 16, vertical: 8),
+                        child: Wrap(
+                          spacing: 10,
+                          runSpacing: 10,
+                          children: _paymentOptions.map((option) {
+                            return GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _paymentMethod = option;
+                                  _isPaymentExpanded = false;
+                                });
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[300],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(option,
+                                    style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w500)),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
 
-            _buildItemButton('메모', _memo, () => _showInputDialog('메모', _memo, (value) => setState(() => _memo = value))),
+            // 메모 입력 (확장형)
+            Container(
+              width: double.infinity,
+              color: Colors.grey[200],
+              margin: const EdgeInsets.only(bottom: 10),
+              child: Column(
+                children: [
+                  InkWell(
+                    onTap: () =>
+                        setState(() => _isMemoExpanded = !_isMemoExpanded),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            _memo.isEmpty ? '메모' : _memo,
+                            style: const TextStyle(
+                                fontSize: 18, fontWeight: FontWeight.bold),
+                          ),
+                          Icon(
+                            _isMemoExpanded
+                                ? Icons.expand_less
+                                : Icons.expand_more,
+                            size: 20,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (_isMemoExpanded)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 8),
+                      child: TextField(
+                        controller: TextEditingController(text: _memo),
+                        maxLines: 5,
+                        onChanged: (value) => setState(() => _memo = value),
+                        decoration: const InputDecoration(
+                          hintText: '메모 입력',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
 
             const SizedBox(height: 20),
             // 클립보드 불러오기 버튼
@@ -245,7 +486,11 @@ class _AddScreenState extends State<AddScreen> {
                   backgroundColor: Colors.grey[400],
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
-                child: const Text('클립보드 불러오기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+                child: const Text('클립보드 불러오기',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black)),
               ),
             ),
 
@@ -260,7 +505,11 @@ class _AddScreenState extends State<AddScreen> {
                   backgroundColor: Colors.grey[400],
                   padding: const EdgeInsets.symmetric(vertical: 15),
                 ),
-                child: const Text('저장하기', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black)),
+                child: const Text('저장하기',
+                    style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black)),
               ),
             ),
           ],
@@ -288,8 +537,44 @@ class _AddScreenState extends State<AddScreen> {
         ),
         child: Text(
           text,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: isSelected ? Colors.black : Colors.grey[700]),
+          style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: isSelected ? Colors.black : Colors.grey[700]),
         ),
+      ),
+    );
+  }
+
+  Widget _buildItemInput(
+      String label, String value, ValueChanged<String> onChanged,
+      {int maxLines = 1}) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      color: Colors.grey[200],
+      margin: const EdgeInsets.only(bottom: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 8),
+          TextField(
+            controller: TextEditingController(text: value),
+            onChanged: onChanged,
+            maxLines: maxLines,
+            decoration: InputDecoration(
+              hintText: '$label 입력',
+              border:
+                  OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              isDense: true,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -305,7 +590,9 @@ class _AddScreenState extends State<AddScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(value.isEmpty ? label : value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            Text(value.isEmpty ? label : value,
+                style:
+                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
             const Icon(Icons.arrow_forward_ios, size: 16),
           ],
         ),
@@ -321,14 +608,21 @@ class _AddScreenState extends State<AddScreen> {
       child: Column(
         children: [
           InkWell(
-            onTap: () => setState(() => _isCategoryExpanded = !_isCategoryExpanded),
+            onTap: () =>
+                setState(() => _isCategoryExpanded = !_isCategoryExpanded),
             child: Padding(
               padding: const EdgeInsets.all(16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(_category == null ? '카테고리' : _category!.name, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Icon(_isCategoryExpanded ? Icons.expand_less : Icons.expand_more, size: 20),
+                  Text(_category == null ? '카테고리' : _category!.name,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
+                  Icon(
+                      _isCategoryExpanded
+                          ? Icons.expand_less
+                          : Icons.expand_more,
+                      size: 20),
                 ],
               ),
             ),
@@ -347,24 +641,32 @@ class _AddScreenState extends State<AddScreen> {
                 children: [
                   // 카테고리 목록
                   ..._categories.map((category) => GestureDetector(
-                    onTap: () => setState(() {
-                      _category = category;
-                      _isCategoryExpanded = false;
-                    }),
-                    child: Container(
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-                      decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(8)),
-                      child: Text(category.name, textAlign: TextAlign.center, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-                    ),
-                  )),
+                        onTap: () => setState(() {
+                          _category = category;
+                          _isCategoryExpanded = false;
+                        }),
+                        child: Container(
+                          alignment: Alignment.center,
+                          padding: const EdgeInsets.symmetric(
+                              vertical: 6, horizontal: 4),
+                          decoration: BoxDecoration(
+                              color: Colors.grey[300],
+                              borderRadius: BorderRadius.circular(8)),
+                          child: Text(category.name,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                  fontSize: 13, fontWeight: FontWeight.w500)),
+                        ),
+                      )),
                   // 카테고리 추가 버튼
                   GestureDetector(
                     onTap: () {
                       if (_isIncome == null) return;
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => CategoryEditScreen(isIncome: _isIncome!)),
+                        MaterialPageRoute(
+                            builder: (context) =>
+                                CategoryEditScreen(isIncome: _isIncome!)),
                       ).then((result) {
                         if (result == true) {
                           _fetchCategories();
@@ -374,9 +676,15 @@ class _AddScreenState extends State<AddScreen> {
                     },
                     child: Container(
                       alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 4),
-                      decoration: BoxDecoration(color: Colors.grey[300], borderRadius: BorderRadius.circular(8)),
-                      child: const Text('편집', textAlign: TextAlign.center, style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 6, horizontal: 4),
+                      decoration: BoxDecoration(
+                          color: Colors.grey[300],
+                          borderRadius: BorderRadius.circular(8)),
+                      child: const Text('편집',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 13, fontWeight: FontWeight.w500)),
                     ),
                   ),
                 ],

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:kkugit/data/service/category_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:kkugit/data/service/preference_service.dart';
@@ -30,7 +29,7 @@ class MyApp extends StatelessWidget {
     final preferenceService = getIt<PreferenceService>();
     final categoryService = getIt<CategoryService>();
     await Future.wait([
-      preferenceService.setDefaultPreferences(),
+      preferenceService.setDefaultPreferences(print('[Init] 기본 카테고리 삽입 완료')),
       categoryService.setDefaultCategories(),
     ]);
   }
