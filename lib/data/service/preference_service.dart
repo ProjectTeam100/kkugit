@@ -53,14 +53,17 @@ class PreferenceService {
     return await _preferenceRepository.getByName(name);
   }
 
-  Future<void> setDefaultPreferences() async {
+  Future<void> setDefaultPreferences(void print) async {
     final defaultPreferences = [
       Preference(name: PreferenceName.backupData.name, data: StringData('')),
       Preference(name: PreferenceName.restoreData.name, data: StringData('')),
-      Preference(name: PreferenceName.enablePasscode.name, data: BoolData(false)),
+      Preference(
+          name: PreferenceName.enablePasscode.name, data: BoolData(false)),
       Preference(name: PreferenceName.passcode.name, data: StringData('')),
-      Preference(name: PreferenceName.enableReminder.name, data: BoolData(false)),
-      Preference(name: PreferenceName.reminderTime.name, data: StringData('08:00')),
+      Preference(
+          name: PreferenceName.enableReminder.name, data: BoolData(false)),
+      Preference(
+          name: PreferenceName.reminderTime.name, data: StringData('08:00')),
     ];
 
     for (var preference in defaultPreferences) {
