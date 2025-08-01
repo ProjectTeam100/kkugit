@@ -33,7 +33,7 @@ migrate_working_dir/
 .pub/
 /build/
 *.g.dart
-pubspec.lock
+lib/di/injection.config.dart
 
 # Symbolication related
 app.*.symbols
@@ -48,10 +48,13 @@ app.*.map.json
 /android/app/.cxx/Debug
 android/app/google-services.json
 
-# Xcode will place build artifacts here
+# iOS related
 macos/Podfile.lock
 macos/Flutter/GeneratedPluginRegistrant.swift
 
 # windows related
 windows/flutter/generated_plugin_registrant.cc
 windows/flutter/generated_plugins.cmake
+
+# etc.
+

@@ -13,6 +13,12 @@ enum Messages {
   // 알림 ID 상수
   defaultNotificationId,
   scheduleNotificationId,
+
+  // 오류 메시지
+  backupFileNotFound,
+  backupFailed,
+  storagePermissionRequired,
+  isarNotOpen,
 }
 
 extension MessagesExtension on Messages {
@@ -23,7 +29,15 @@ extension MessagesExtension on Messages {
         const EnumData(id: 0, description: '기본 알림 ID'),
     Messages.scheduleNotificationId:
         const EnumData(id: 1, description: '예약 알림 ID'),
+    Messages.backupFileNotFound:
+        const EnumData(description: '백업 파일을 찾을 수 없습니다.'),
+    Messages.backupFailed: const EnumData(description: '백업에 실패했습니다.'),
+    Messages.storagePermissionRequired:
+        const EnumData(description: '저장소 권한이 필요합니다.'),
+    Messages.isarNotOpen:
+        const EnumData(description: 'Isar 데이터베이스가 열려 있지 않습니다.'),
   };
 
   int get id => _data[this]?.id ?? -1;
+  String get description => _data[this]?.description ?? '';
 }
