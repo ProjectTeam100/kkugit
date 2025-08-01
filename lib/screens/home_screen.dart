@@ -4,7 +4,6 @@ import 'package:kkugit/data/model/transaction.dart';
 import 'package:kkugit/data/service/transaction_service.dart';
 import 'package:kkugit/components/challenge_status.dart';
 import 'package:kkugit/di/injection.dart';
-import 'package:kkugit/util/notification/notification.dart';
 import 'package:table_calendar/table_calendar.dart';
 import '../components/balance_summary.dart';
 import 'package:kkugit/screens/add_screen.dart';

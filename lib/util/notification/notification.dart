@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:intl/intl.dart';
 import 'package:kkugit/data/constant/messages.dart';
 import 'package:timezone/timezone.dart' as tz;
 
@@ -39,6 +40,17 @@ class FlutterLocalNotifications {
           sound: true,
         );
     return grantedIOS ?? false;
+  }
+
+  static Future<String?> getScheduledTime() async {
+    final List<PendingNotificationRequest> pendingNotifications =
+        await flutterLocalNotificationsPlugin.pendingNotificationRequests();
+    for (var notification in pendingNotifications) {
+      if (notification.id == Messages.scheduleNotificationId.id) {
+        return notification.payload; // hh:mm AM/PM
+      }
+    }
+    return null;
   }
 
   static Future<void> cancelNotification(int id) async {
@@ -86,7 +98,7 @@ class FlutterLocalNotifications {
         tz.TZDateTime.from(newTime, tz.local),
         notificationDetails,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        payload: 'test payload',
+        payload: DateFormat.jm().format(newTime),
         matchDateTimeComponents: DateTimeComponents.time,
       );
     }

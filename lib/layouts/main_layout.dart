@@ -43,7 +43,6 @@ class _MainLayoutState extends State<MainLayout> {
   Widget build(BuildContext context) {
     // 리마인더 시간 변경 리스너 구독
     _preferenceService.reminderStream.listen((message) async {
-      console.log('리마인더 시간 변경: $message');
       await FlutterLocalNotifications.cancelNotification(
           Messages.scheduleNotificationId.id);
       if (message != Messages.reminderDisabled.name &&
@@ -52,6 +51,7 @@ class _MainLayoutState extends State<MainLayout> {
         try {
           final newTime = formatter.parse(message);
           FlutterLocalNotifications.showNotification(newTime);
+          console.log('리마인더 시간 설정: $message');
         } catch (e) {
           // do nothing if parsing fails
           console.log('리마인더 시간 파싱 실패: $e');

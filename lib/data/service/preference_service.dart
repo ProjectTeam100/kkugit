@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer' as console show log;
 
 import 'package:injectable/injectable.dart';
 import 'package:kkugit/data/constant/messages.dart';
@@ -113,11 +114,17 @@ class PreferenceService {
       Preference(name: PreferenceName.reminderTime, data: StringData('08:00')),
     ];
 
+    List<String> existingNames = [];
     for (var preference in defaultPreferences) {
       final existingPreference = await getByName(preference.name);
       if (existingPreference == null) {
         await addPreference(preference);
+        existingNames.add(preference.name.name);
       }
+    }
+
+    if (existingNames.isNotEmpty) {
+      console.log('기본 설정이 저장되었습니다. ${existingNames.join(', ')}');
     }
   }
 }

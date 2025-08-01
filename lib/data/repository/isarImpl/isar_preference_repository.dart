@@ -3,7 +3,6 @@ import 'package:isar/isar.dart';
 import 'package:kkugit/data/constant/preference_name.dart';
 import 'package:kkugit/data/local/isar/isar_preference.dart';
 import 'package:kkugit/data/model/preference.dart';
-import 'package:kkugit/data/model/preference_data.dart';
 import 'package:kkugit/data/repository/preference_repository.dart';
 
 @LazySingleton(as: PreferenceRepository)

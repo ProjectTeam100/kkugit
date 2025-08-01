@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kkugit/data/constant/preference_name.dart';
-import 'package:kkugit/data/model/preference_data.dart';
 import 'package:kkugit/data/service/category_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:kkugit/data/service/preference_service.dart';
@@ -36,16 +35,25 @@ class MyApp extends StatelessWidget {
     );
     final preferenceService = getIt<PreferenceService>();
     final categoryService = getIt<CategoryService>();
-    List<Permission> permissions = [
-      Permission.notification,
-      Permission.scheduleExactAlarm
-    ];
-    await RequestAndroidPermissions.requestPermissions(permissions); // 권한 요청
-    preferenceService.reminderInitialize(); // 알림 시간 초기화
+    List<Permission> permissions = [];
     await Future.wait([
       preferenceService.setDefaultPreferences(),
       categoryService.setDefaultCategories(),
-    ]);
+    ]); // 기본 설정 및 카테고리 초기화
+    await preferenceService
+        .isEnabled(PreferenceName.enableReminder)
+        .then((enabled) => {
+              if (enabled)
+                {
+                  permissions.add(Permission.notification),
+                  permissions.add(Permission.scheduleExactAlarm),
+                }
+            });
+    await RequestAndroidPermissions.requestPermissions(permissions); // 권한 요청
+    await FlutterLocalNotifications.getScheduledTime().then((timeString) {
+      if (timeString == null) preferenceService.reminderInitialize();
+      // 리마인더 시간 초기화
+    });
   }
 
   @override

@@ -31,7 +31,9 @@ migrate_working_dir/
 .flutter-plugins-dependencies
 .pub-cache/
 .pub/
+pubspec.lock
 /build/
+*.g.dart
 
 # Symbolication related
 app.*.symbols
@@ -45,4 +47,11 @@ app.*.map.json
 /android/app/release
 /android/app/.cxx/Debug
 android/app/google-services.json
+
+# Xcode will place build artifacts here
 macos/Podfile.lock
+macos/Flutter/GeneratedPluginRegistrant.swift
+
+# windows related
+windows/flutter/generated_plugin_registrant.cc
+windows/flutter/generated_plugins.cmake
