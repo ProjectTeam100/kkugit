@@ -16,8 +16,9 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
   final _categoryService = getIt<CategoryService>();
   List<Category> _incomeCategories = [];
   List<Category> _expenseCategories = [];
-  List<Category> get _categories =>
-      widget.isIncome ? _incomeCategories : _expenseCategories; // 현재 화면에 맞는 카테고리 리스트
+  List<Category> get _categories => widget.isIncome
+      ? _incomeCategories
+      : _expenseCategories; // 현재 화면에 맞는 카테고리 리스트
 
   @override
   void initState() {
@@ -25,14 +26,38 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
     _loadCategories();
   }
 
-  Future<void> _loadCategories() async { // 수입, 지출 카테고리 불러오기
-    _incomeCategories = await _categoryService.getByType(CategoryType.income);
-    _expenseCategories = await _categoryService.getByType(CategoryType.expense);
+  Future<void> _loadCategories() async {
+    // 수입, 지출 카테고리 불러오기
+    final income = await _categoryService.getByType(CategoryType.income);
+    final expense = await _categoryService.getByType(CategoryType.expense);
+    if (!mounted) return; // 위젯이 마운트되지 않은 경우 처리
+    setState(() {
+      _incomeCategories = income;
+      _expenseCategories = expense;
+    });
   }
 
   void _deleteCategory(int id) async {
-    _categoryService.delete(id);
-    _loadCategories();
+    showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text('카테고리 삭제'),
+        content: const Text('이 카테고리를 삭제하시겠습니까?'),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(context), child: const Text('취소')),
+          TextButton(
+            onPressed: () async {
+              await _categoryService.delete(id);
+              _loadCategories();
+              if (!mounted) return;
+              Navigator.pop(context); // 다이얼로그 닫기
+            },
+            child: const Text('삭제'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _editCategory(Category category) {
@@ -51,7 +76,8 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
               onPressed: () => Navigator.pop(context), child: const Text('취소')),
           TextButton(
             onPressed: () async {
-              Category newCategory = category.copyWith( // 수정된 카테고리 생성
+              Category newCategory = category.copyWith(
+                // 수정된 카테고리 생성
                 name: controller.text.trim(),
               );
               _categoryService.update(newCategory);
@@ -83,12 +109,14 @@ class _CategoryEditScreenState extends State<CategoryEditScreen> {
           TextButton(
             onPressed: () async {
               final name = controller.text.trim();
-              if (name.isNotEmpty) { // 이름이 중복되는 카테고리 확인 로직 필요
-                _categoryService.add(
-                  name,
-                  widget.isIncome ? CategoryType.income : CategoryType.expense
-                );
-                await _loadCategories();
+              if (name.isNotEmpty) {
+                // 이름이 중복되는 카테고리 확인 로직 필요
+                await _categoryService.add(
+                    name,
+                    widget.isIncome
+                        ? CategoryType.income
+                        : CategoryType.expense);
+                _loadCategories();
                 if (!mounted) return;
                 Navigator.pop(context, true);
               }

@@ -1,17 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:kkugit/data/constant/preference_name.dart';
 import 'package:kkugit/data/service/category_service.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:kkugit/data/service/preference_service.dart';
 import 'package:kkugit/di/injection.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:kkugit/util/notification/notification.dart';
+import 'package:kkugit/util/permission/request_android_permissions.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'firebase_options.dart';
 import 'package:kkugit/layouts/main_layout.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 // ✅ main_layout.dart에 있어야 함:
 // final GlobalKey<_MainLayoutState> mainLayoutKey = GlobalKey();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  tz.initializeTimeZones(); // Timezone 초기화
+  await FlutterLocalNotifications.initialize();
   runApp(const MyApp());
 }
 
@@ -28,10 +35,25 @@ class MyApp extends StatelessWidget {
     );
     final preferenceService = getIt<PreferenceService>();
     final categoryService = getIt<CategoryService>();
+    List<Permission> permissions = [];
     await Future.wait([
-      preferenceService.setDefaultPreferences(print('[Init] 기본 카테고리 삽입 완료')),
+      preferenceService.setDefaultPreferences(),
       categoryService.setDefaultCategories(),
-    ]);
+    ]); // 기본 설정 및 카테고리 초기화
+    await preferenceService
+        .isEnabled(PreferenceName.enableReminder)
+        .then((enabled) => {
+              if (enabled)
+                {
+                  permissions.add(Permission.notification),
+                  permissions.add(Permission.scheduleExactAlarm),
+                }
+            });
+    await RequestAndroidPermissions.requestPermissions(permissions); // 권한 요청
+    await FlutterLocalNotifications.getScheduledTime().then((timeString) {
+      if (timeString == null) preferenceService.reminderInitialize();
+      // 리마인더 시간 초기화
+    });
   }
 
   @override

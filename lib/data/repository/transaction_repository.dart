@@ -12,5 +12,6 @@ abstract class TransactionRepository {
   Future<List<Transaction>> getByPayment(String paymentMethod);
   Future<List<Transaction>> getByType(TransactionType type);
   Future<List<Transaction>> getByDateRange(DateTime start, DateTime end);
+  Future<List<Transaction>> getByMonth(DateTime date);
   Future<int> getMonthlySumByType(TransactionType type, DateTime date);
 }

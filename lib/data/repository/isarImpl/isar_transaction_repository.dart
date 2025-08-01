@@ -42,7 +42,8 @@ class IsarTransactionRepository implements TransactionRepository {
 
   @override
   Future<List<Transaction>> getByCategoryId(int categoryId) async {
-    final entities = await _isar.isarTransactions.filter()
+    final entities = await _isar.isarTransactions
+        .filter()
         .categoryIdEqualTo(categoryId)
         .findAll();
     return entities.map((e) => e.toDomain()).toList();
@@ -50,23 +51,22 @@ class IsarTransactionRepository implements TransactionRepository {
 
   @override
   Future<List<Transaction>> getByGroupId(int groupId) async {
-    final entities = await _isar.isarTransactions.filter()
-        .groupIdEqualTo(groupId)
-        .findAll();
+    final entities =
+        await _isar.isarTransactions.filter().groupIdEqualTo(groupId).findAll();
     return entities.map((e) => e.toDomain()).toList();
   }
 
   @override
   Future<List<Transaction>> getByClient(String client) async {
-    final entities = await _isar.isarTransactions.filter()
-        .clientContains(client)
-        .findAll();
+    final entities =
+        await _isar.isarTransactions.filter().clientContains(client).findAll();
     return entities.map((e) => e.toDomain()).toList();
   }
 
   @override
   Future<List<Transaction>> getByPayment(String payment) async {
-    final entities = await _isar.isarTransactions.filter()
+    final entities = await _isar.isarTransactions
+        .filter()
         .paymentContains(payment)
         .findAll();
     return entities.map((e) => e.toDomain()).toList();
@@ -74,18 +74,26 @@ class IsarTransactionRepository implements TransactionRepository {
 
   @override
   Future<List<Transaction>> getByType(TransactionType type) async {
-    final entities = await _isar.isarTransactions.filter()
-        .typeEqualTo(type)
-        .findAll();
+    final entities =
+        await _isar.isarTransactions.filter().typeEqualTo(type).findAll();
     return entities.map((e) => e.toDomain()).toList();
   }
 
   @override
   Future<List<Transaction>> getByDateRange(DateTime start, DateTime end) async {
-    final entities = await _isar.isarTransactions.filter()
+    final entities = await _isar.isarTransactions
+        .filter()
         .dateTimeBetween(start, end)
         .findAll();
     return entities.map((e) => e.toDomain()).toList();
+  }
+
+  @override
+  Future<List<Transaction>> getByMonth(DateTime date) async {
+    final start = DateTime(date.year, date.month, 1);
+    final end = DateTime(date.year, date.month + 1, 0);
+
+    return await getByDateRange(start, end);
   }
 
   @override
@@ -93,7 +101,8 @@ class IsarTransactionRepository implements TransactionRepository {
     final start = DateTime(date.year, date.month, 1);
     final end = DateTime(date.year, date.month + 1, 0);
 
-    final entities = await _isar.isarTransactions.filter()
+    final entities = await _isar.isarTransactions
+        .filter()
         .dateTimeBetween(start, end)
         .typeEqualTo(type)
         .findAll();

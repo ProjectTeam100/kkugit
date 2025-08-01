@@ -49,9 +49,25 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> fetchTransactions(selectedDay) async {
+    final date = selectedDay ?? DateTime.now();
+    final results = await Future.wait([
+      _transactionService.getMonthlySumByType(TransactionType.income, date),
+      _transactionService.getMonthlySumByType(TransactionType.expense, date),
+      _transactionService.getByMonth(date),
+    ]);
+    setState(() {
+      _monthlyIncomeSum = results[0] as int;
+      _monthlySpendingSum = results[1] as int;
+      _transactions = results[2] as List<Transaction>;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final currentMonth = DateFormat('M월', 'ko_KR').format(DateTime.now());
+    final currentMonth = DateFormat('M월', 'ko_KR').format(
+      _selectedDay ?? DateTime.now(),
+    );
 
     return Scaffold(
       body: SafeArea(
@@ -138,10 +154,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   calendarFormat: _calendarFormat,
                   selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                   onDaySelected: (selectedDay, focusedDay) {
-                    setState(() {
-                      _selectedDay = selectedDay;
-                      _focusedDay = focusedDay;
-                    });
+                    if (!isSameDay(_selectedDay, selectedDay)) {
+                      // 선택된 날짜가 변경되었을 때만 상태를 업데이트
+                      setState(() {
+                        _selectedDay = selectedDay;
+                        _focusedDay = focusedDay;
+                      });
+                      fetchTransactions(selectedDay);
+                    }
                   },
                   onFormatChanged: (format) {
                     setState(() {

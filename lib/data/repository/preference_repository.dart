@@ -1,3 +1,4 @@
+import 'package:kkugit/data/constant/preference_name.dart';
 import 'package:kkugit/data/model/preference.dart';
 
 abstract class PreferenceRepository {
@@ -6,5 +7,5 @@ abstract class PreferenceRepository {
   Future<void> delete(int id);
   Future<Preference?> getById(int id);
   Future<List<Preference>> getAll();
-  Future<List<Preference>> getByName(String name);
+  Future<Preference?> getByName(PreferenceName name);
 }

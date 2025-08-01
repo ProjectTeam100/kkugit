@@ -25,7 +25,8 @@ const IsarPreferenceSchema = CollectionSchema(
     r'name': PropertySchema(
       id: 1,
       name: r'name',
-      type: IsarType.string,
+      type: IsarType.byte,
+      enumMap: _IsarPreferencenameEnumValueMap,
     ),
     r'type': PropertySchema(
       id: 2,
@@ -54,7 +55,6 @@ int _isarPreferenceEstimateSize(
 ) {
   var bytesCount = offsets.last;
   bytesCount += 3 + object.data.length * 3;
-  bytesCount += 3 + object.name.length * 3;
   bytesCount += 3 + object.type.length * 3;
   return bytesCount;
 }
@@ -66,7 +66,7 @@ void _isarPreferenceSerialize(
   Map<Type, List<int>> allOffsets,
 ) {
   writer.writeString(offsets[0], object.data);
-  writer.writeString(offsets[1], object.name);
+  writer.writeByte(offsets[1], object.name.index);
   writer.writeString(offsets[2], object.type);
 }
 
@@ -79,7 +79,9 @@ IsarPreference _isarPreferenceDeserialize(
   final object = IsarPreference();
   object.data = reader.readString(offsets[0]);
   object.id = id;
-  object.name = reader.readString(offsets[1]);
+  object.name =
+      _IsarPreferencenameValueEnumMap[reader.readByteOrNull(offsets[1])] ??
+          PreferenceName.backupData;
   object.type = reader.readString(offsets[2]);
   return object;
 }
@@ -94,13 +96,31 @@ P _isarPreferenceDeserializeProp<P>(
     case 0:
       return (reader.readString(offset)) as P;
     case 1:
-      return (reader.readString(offset)) as P;
+      return (_IsarPreferencenameValueEnumMap[reader.readByteOrNull(offset)] ??
+          PreferenceName.backupData) as P;
     case 2:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
   }
 }
+
+const _IsarPreferencenameEnumValueMap = {
+  'backupData': 0,
+  'restoreData': 1,
+  'enablePasscode': 2,
+  'passcode': 3,
+  'enableReminder': 4,
+  'reminderTime': 5,
+};
+const _IsarPreferencenameValueEnumMap = {
+  0: PreferenceName.backupData,
+  1: PreferenceName.restoreData,
+  2: PreferenceName.enablePasscode,
+  3: PreferenceName.passcode,
+  4: PreferenceName.enableReminder,
+  5: PreferenceName.reminderTime,
+};
 
 Id _isarPreferenceGetId(IsarPreference object) {
   return object.id;
@@ -390,58 +410,49 @@ extension IsarPreferenceQueryFilter
   }
 
   QueryBuilder<IsarPreference, IsarPreference, QAfterFilterCondition>
-      nameEqualTo(
-    String value, {
-    bool caseSensitive = true,
-  }) {
+      nameEqualTo(PreferenceName value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.equalTo(
         property: r'name',
         value: value,
-        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<IsarPreference, IsarPreference, QAfterFilterCondition>
       nameGreaterThan(
-    String value, {
+    PreferenceName value, {
     bool include = false,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.greaterThan(
         include: include,
         property: r'name',
         value: value,
-        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<IsarPreference, IsarPreference, QAfterFilterCondition>
       nameLessThan(
-    String value, {
+    PreferenceName value, {
     bool include = false,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.lessThan(
         include: include,
         property: r'name',
         value: value,
-        caseSensitive: caseSensitive,
       ));
     });
   }
 
   QueryBuilder<IsarPreference, IsarPreference, QAfterFilterCondition>
       nameBetween(
-    String lower,
-    String upper, {
+    PreferenceName lower,
+    PreferenceName upper, {
     bool includeLower = true,
     bool includeUpper = true,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(FilterCondition.between(
@@ -450,77 +461,6 @@ extension IsarPreferenceQueryFilter
         includeLower: includeLower,
         upper: upper,
         includeUpper: includeUpper,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<IsarPreference, IsarPreference, QAfterFilterCondition>
-      nameStartsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.startsWith(
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<IsarPreference, IsarPreference, QAfterFilterCondition>
-      nameEndsWith(
-    String value, {
-    bool caseSensitive = true,
-  }) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.endsWith(
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<IsarPreference, IsarPreference, QAfterFilterCondition>
-      nameContains(String value, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.contains(
-        property: r'name',
-        value: value,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<IsarPreference, IsarPreference, QAfterFilterCondition>
-      nameMatches(String pattern, {bool caseSensitive = true}) {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.matches(
-        property: r'name',
-        wildcard: pattern,
-        caseSensitive: caseSensitive,
-      ));
-    });
-  }
-
-  QueryBuilder<IsarPreference, IsarPreference, QAfterFilterCondition>
-      nameIsEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.equalTo(
-        property: r'name',
-        value: '',
-      ));
-    });
-  }
-
-  QueryBuilder<IsarPreference, IsarPreference, QAfterFilterCondition>
-      nameIsNotEmpty() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(FilterCondition.greaterThan(
-        property: r'name',
-        value: '',
       ));
     });
   }
@@ -767,10 +707,9 @@ extension IsarPreferenceQueryWhereDistinct
     });
   }
 
-  QueryBuilder<IsarPreference, IsarPreference, QDistinct> distinctByName(
-      {bool caseSensitive = true}) {
+  QueryBuilder<IsarPreference, IsarPreference, QDistinct> distinctByName() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'name', caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'name');
     });
   }
 
@@ -796,7 +735,8 @@ extension IsarPreferenceQueryProperty
     });
   }
 
-  QueryBuilder<IsarPreference, String, QQueryOperations> nameProperty() {
+  QueryBuilder<IsarPreference, PreferenceName, QQueryOperations>
+      nameProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'name');
     });

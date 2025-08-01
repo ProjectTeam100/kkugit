@@ -70,6 +70,10 @@ class TransactionService {
     return await _transactionRepository.getByDateRange(start, end);
   }
 
+  Future<List<Transaction>> getByMonth(DateTime date) async {
+    return await _transactionRepository.getByMonth(date);
+  }
+
   Future<int> getMonthlySumByType(TransactionType type, DateTime date) async {
     return await _transactionRepository.getMonthlySumByType(type, date);
   }
