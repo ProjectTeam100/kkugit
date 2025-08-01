@@ -20,7 +20,7 @@ class AddScreen extends StatefulWidget {
 class _AddScreenState extends State<AddScreen> {
   final TextEditingController _amountController = TextEditingController();
   final FocusNode _amountFocusNode = FocusNode();
-  bool? _isIncome;
+  bool? _isIncome = false; // 기본값: false (지출)
   DateTime _selectedDate = DateTime.now();
   final _transactionService = getIt<TransactionService>();
   final _categoryService = getIt<CategoryService>();
@@ -60,8 +60,13 @@ class _AddScreenState extends State<AddScreen> {
   }
 
   void _fetchCategories() async {
-    _incomeCategories = await _categoryService.getByType(CategoryType.income);
-    _expenseCategories = await _categoryService.getByType(CategoryType.expense);
+    final income = await _categoryService.getByType(CategoryType.income);
+    final expense = await _categoryService.getByType(CategoryType.expense);
+    if (!mounted) return; // 위젯이 마운트되지 않은 경우 처리
+    setState(() {
+      _incomeCategories = income;
+      _expenseCategories = expense;
+    });
   }
 
   void _pickDate() async {
