@@ -61,50 +61,38 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               // 상단 헤더
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.end, // 오른쪽 정렬로 변경
                 children: [
-                  const Text(
-                    '검색',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
+                  TextButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const FixedSpendingScreen(),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      '고정지출',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
-                  Row(
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const FixedSpendingScreen(),
-                            ),
-                          );
-                        },
-                        child: const Text(
-                          '고정지출',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
+                  TextButton(
+                    onPressed: () {
+                      mainLayoutKey.currentState?.navigateToTab(3);
+                    },
+                    child: const Text(
+                      '설정',
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
-                      TextButton(
-                        onPressed: () {
-                          // ✅ SettingsScreen으로 push하지 않고 MainLayout의 탭 변경
-                          mainLayoutKey.currentState?.navigateToTab(3);
-                        },
-                        child: const Text(
-                          '설정',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
