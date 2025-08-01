@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer' as console show log;
 
 import 'package:firebase_ai/firebase_ai.dart';
 
@@ -38,6 +39,7 @@ Future<Map<String, dynamic>> parseMessage(String message) async {
 
   final response = await model.generateContent([Content.text(promptText)]);
   final jsonResponse = response.text?.trim();
+  console.log('Gemini API 응답: $jsonResponse');
   if (jsonResponse == null || jsonResponse.isEmpty) {
     throw Exception('응답이 비어있습니다.');
   }
