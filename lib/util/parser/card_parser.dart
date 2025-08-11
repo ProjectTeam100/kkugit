@@ -1,5 +1,6 @@
 // 카드 알림 문자 파싱
 import 'dart:async';
+import 'dart:developer' as console show log;
 
 import 'package:kkugit/data/model/transaction.dart';
 import 'package:kkugit/util/parser/gemini_api.dart';
@@ -49,6 +50,7 @@ class AIParser extends CardParser {
       final parsedData = await parseMessage(message);
       if (parsedData.isEmpty) return null;
       final year = DateTime.now().year.toString();
+      console.log(parsedData['amount']);
       return Transaction(
         dateTime:
             DateTime.parse('$year-${parsedData['date']} ${parsedData['time']}'),
@@ -56,7 +58,9 @@ class AIParser extends CardParser {
         payment: parsedData['cardName'] ?? '카드',
         categoryId: 0, // 카테고리 ID는 추후에 설정
         groupId: null, // 그룹 ID는 추후에 설정
-        amount: int.tryParse(parsedData['amount']?.toString() ?? '0') ?? 0,
+        amount:
+            int.tryParse(parsedData['amount'].toString().replaceAll(',', '')) ??
+                0,
         memo: '', // 메모는 추후에 설정
         type: getTransactionType(parsedData['type'] ?? ''),
       );
