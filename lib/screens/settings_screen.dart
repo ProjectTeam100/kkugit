@@ -25,7 +25,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final reminderTimeRegex = RegExp(r'(\d{1,2}):(\d{1,2})\s([PAMpam]+)');
   bool isReminderOn = false;
   TimeOfDay reminderTime = const TimeOfDay(hour: 21, minute: 0);
-  final basePath = BackupUtil.backupFilePath;
+
 
   /// 알림 시간 선택
   void _pickTime() async {
@@ -52,7 +52,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final notificationStatus = await Permission.notification.status;
     final scheduleExactAlarmStatus = await Permission.scheduleExactAlarm.status;
     bool result = false;
-    if (notificationStatus.isDenied || scheduleExactAlarmStatus.isDenied) {
+    if (notificationStatus.isDenied || scheduleExactAlarmStatus.isDenied ) {
       result = await RequestAndroidPermissions.requestPermissions([
         Permission.notification,
         Permission.scheduleExactAlarm,
@@ -63,8 +63,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return result;
   }
 
+  // 저장소 권한 확인 및 요청
+  Future<bool> _requestStoragePermissions() async {
+    final manageExternalStorageStatus =
+        await Permission.manageExternalStorage.status;
+    if (manageExternalStorageStatus.isDenied) {
+      return RequestAndroidPermissions.requestPermissions([
+        Permission.manageExternalStorage,
+      ]);
+    }
+    return true;
+  }
+
   /// 데이터 백업
   Future<void> _backupData() async {
+    final hasPermission = await _requestStoragePermissions();
+    if (!hasPermission) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('저장소 권한이 필요합니다.')),
+      );
+      return;
+    }
+    final basePath = BackupUtil.backupFilePath;
     final dateCode = DateTime.now()
         .toIso8601String()
         .replaceAll(':', '-')
@@ -80,6 +101,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   /// 데이터 불러오기
   Future<void> _restoreData() async {
+    final hasPermission = await _requestStoragePermissions();
+    if (!hasPermission) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('저장소 권한이 필요합니다.')),
+      );
+      return;
+    }
+    final basePath = BackupUtil.backupFilePath;
     final pickedFile = await FilePicker.platform.pickFiles(
       initialDirectory: basePath,
       dialogTitle: '백업 파일 선택',
