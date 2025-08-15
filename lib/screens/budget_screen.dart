@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kkugit/screens/challenge_screen.dart';
 
 class BudgetSettingScreen extends StatefulWidget {
   const BudgetSettingScreen({super.key});
@@ -50,7 +51,10 @@ class _BudgetSettingScreenState extends State<BudgetSettingScreen> {
           children: [
             ElevatedButton(
               onPressed: () {
-                // 챌린지 시작 or 상태 표시 등
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const ChallengeScreen()),
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.grey[300],
