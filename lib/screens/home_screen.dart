@@ -70,57 +70,44 @@ class _HomeScreenState extends State<HomeScreen> {
     );
 
     return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          currentMonth,
+          style: const TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        centerTitle: true,
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const FixedSpendingScreen(),
+                ),
+              );
+            },
+            child: const Text(
+              '고정지출',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        ],
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              // 상단 헤더
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end, // 오른쪽 정렬로 변경
-                children: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const FixedSpendingScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      '고정지출',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      mainLayoutKey.currentState?.navigateToTab(3);
-                    },
-                    child: const Text(
-                      '설정',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              Text(
-                currentMonth,
-                style: const TextStyle(
-                  fontSize: 32,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 20),
               BalanceSummary(
                 income: _monthlyIncomeSum,
                 expense: _monthlySpendingSum,
@@ -143,7 +130,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   selectedDayPredicate: (day) => isSameDay(_selectedDay, day),
                   onDaySelected: (selectedDay, focusedDay) {
                     if (!isSameDay(_selectedDay, selectedDay)) {
-                      // 선택된 날짜가 변경되었을 때만 상태를 업데이트
                       setState(() {
                         _selectedDay = selectedDay;
                         _focusedDay = focusedDay;
@@ -212,7 +198,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           );
           if (result == true) {
-            _initialize(); // 돌아올때 새로고침
+            _initialize();
           }
         },
         child: const Icon(Icons.add),
