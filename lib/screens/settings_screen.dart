@@ -23,9 +23,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   final _preferenceService = getIt<PreferenceService>();
   final _backupUtil = getIt<BackupUtil>();
   final reminderTimeRegex = RegExp(r'(\d{1,2}):(\d{1,2})\s([PAMpam]+)');
+
   bool isReminderOn = false;
   TimeOfDay reminderTime = const TimeOfDay(hour: 21, minute: 0);
 
+  bool isAppLockOn = false; // 🔒 앱 잠금 스위치 상태
 
   /// 알림 시간 선택
   void _pickTime() async {
@@ -36,7 +38,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (picked != null) {
       final now = DateTime.now();
       final timeString = DateFormat.jm().format(
-          DateTime(now.year, now.month, now.day, picked.hour, picked.minute));
+        DateTime(now.year, now.month, now.day, picked.hour, picked.minute),
+      );
       await _preferenceService.updateByName(
         PreferenceName.reminderTime,
         StringData(timeString),
@@ -52,7 +55,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     final notificationStatus = await Permission.notification.status;
     final scheduleExactAlarmStatus = await Permission.scheduleExactAlarm.status;
     bool result = false;
-    if (notificationStatus.isDenied || scheduleExactAlarmStatus.isDenied ) {
+    if (notificationStatus.isDenied || scheduleExactAlarmStatus.isDenied) {
       result = await RequestAndroidPermissions.requestPermissions([
         Permission.notification,
         Permission.scheduleExactAlarm,
@@ -63,10 +66,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return result;
   }
 
-  // 저장소 권한 확인 및 요청
+  /// 저장소 권한 확인 및 요청
   Future<bool> _requestStoragePermissions() async {
     final manageExternalStorageStatus =
-        await Permission.manageExternalStorage.status;
+    await Permission.manageExternalStorage.status;
     if (manageExternalStorageStatus.isDenied) {
       return RequestAndroidPermissions.requestPermissions([
         Permission.manageExternalStorage,
@@ -156,14 +159,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
       console.log('데이터 불러오기 실패: $e');
       if (!mounted) return;
       final errorMessage =
-          e is Exception ? e.toString() : '데이터 불러오기 중 오류가 발생했습니다.';
+      e is Exception ? e.toString() : '데이터 불러오기 중 오류가 발생했습니다.';
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(errorMessage)),
       );
     }
   }
 
-  // 앱 시작 시 설정 불러오기
+  /// 앱 시작 시 설정 불러오기
   Future<void> _loadPreferences() async {
     final preferences = await _preferenceService.getAll();
     for (var preference in preferences) {
@@ -178,9 +181,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
             final time = formatter.parse(timeString);
             reminderTime = TimeOfDay.fromDateTime(time);
           } catch (e) {
-            // 시간 파싱 실패 시 기본 시간으로 설정
             reminderTime = const TimeOfDay(hour: 21, minute: 0);
           }
+          break;
+        case PreferenceName.enablePasscode: // 🔒 앱 잠금 설정 불러오기
+          isAppLockOn = (preference.data as BoolData).value;
           break;
         default:
           break;
@@ -208,7 +213,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildListTile('데이터 백업', PreferenceName.backupData),
           _buildListTile('데이터 불러오기', PreferenceName.restoreData),
           _buildSectionHeader('보안'),
-          _buildListTile('앱 잠금 설정', PreferenceName.enablePasscode),
+          SwitchListTile(
+            title: const Text('앱 잠금 설정'),
+            value: isAppLockOn,
+            onChanged: (value) async {
+              await _preferenceService.updateByName(
+                PreferenceName.enablePasscode,
+                BoolData(value),
+              );
+              setState(() {
+                isAppLockOn = value;
+              });
+            },
+          ),
           _buildSectionHeader('알림'),
           SwitchListTile(
             title: const Text('리마인더 설정'),
@@ -267,9 +284,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             break;
           case PreferenceName.restoreData:
             _restoreData();
-            break;
-          case PreferenceName.enablePasscode:
-            //TODO: 앱 잠금 설정 기능 구현
             break;
           default:
             break;
