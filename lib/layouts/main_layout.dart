@@ -28,7 +28,7 @@ class _MainLayoutState extends State<MainLayout> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const StatisticsScreen(),
-    const BudgetScreen(),
+    const BudgetSettingScreen(),
     const SettingsScreen(),
   ];
 
